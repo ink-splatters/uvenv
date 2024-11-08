@@ -38,7 +38,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "maturin",
+    "maturin[zig]",
 ]
 
 [tool.maturin]
