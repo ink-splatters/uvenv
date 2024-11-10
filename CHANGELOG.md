@@ -2,7 +2,13 @@
 
 <!--next-version-placeholder-->
 
-## 3.4.4 (2024-11-08)
+## 3.4.6 (2024-11-10)
+
+### Updates
+
+* upgrade to `uv` 0.5.1
+
+## 3.4.5 (2024-11-08)
 
 ### Updates
 
