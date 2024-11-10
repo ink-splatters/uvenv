@@ -77,7 +77,7 @@ pub fn uv_cache() -> Cache {
 /// try to find a `PythonEnvironment` based on Cache or currently active virtualenv (`VIRTUAL_ENV`).
 pub fn uv_venv(maybe_cache: Option<Cache>) -> anyhow::Result<PythonEnvironment> {
     let cache = maybe_cache.unwrap_or_else(uv_cache);
-    cache.environment()?; // set up the cache
+    cache.venv_dir()?; // set up the cache
 
     let environ = PythonEnvironment::find(
         &PythonRequest::Any,                // just find me a python
