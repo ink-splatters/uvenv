@@ -1,6 +1,5 @@
 use core::any::type_name;
 use std::fs::File;
-use std::io;
 use std::path::{Path, PathBuf};
 
 pub trait ResultToString<T, E> {
@@ -95,7 +94,7 @@ fn touch<P: AsRef<Path>>(path: P) -> anyhow::Result<()> {
     }
     Ok(())
 }
-    
+
 
 impl Touch for Path {
     fn touch(&self) -> anyhow::Result<()> {
@@ -108,4 +107,3 @@ impl Touch for PathBuf {
         touch(self)
     }
 }
-    
