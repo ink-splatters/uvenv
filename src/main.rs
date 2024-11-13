@@ -50,6 +50,7 @@ pub async fn generate_completions_shell(generator: Shell) {
         },
         _ => {
             // other cases: show regular completions
+            // note: this should support zsh but doesn't seem to actually work :(
             print_completions(generator, &mut cmd);
             // todo: dynamic completions for e.g. `uvenv upgrade <venv>`
         },
