@@ -107,7 +107,8 @@ pub async fn setup_for_shell(
     // ignore result/output:
     let _ = self_link(false, true).await;
 
-    println!("Setup finished, you may want to run `{}` now in order to apply these changes to your shell.", "exec bash".green());
+    println!("Setup finished, you may want to run `{}` now in order to apply these changes to your shell.", 
+             format!("exec {}", shell.name()).green());
     // bool to int
     Ok(i32::from(any_warnings))
 }
