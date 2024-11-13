@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## 3.5.0 (2024-11-13)
+
+### Features
+
+* Add support for macOS and zsh
+
 ## 3.4.6 (2024-11-10)
 
 ### Updates
