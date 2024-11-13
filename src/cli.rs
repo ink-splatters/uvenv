@@ -64,11 +64,11 @@ const PYTHON_HELP_TEXT: &str =
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
 pub struct SetupOptions {
-    #[clap(long, help = "Don't update $PATH in .bashrc")]
+    #[clap(long, help = "Don't update $PATH in .bashrc/.zshrc")]
     pub skip_ensurepath: bool,
-    #[clap(long, help = "Don't enable completions via .bashrc")]
+    #[clap(long, help = "Don't enable completions via .bashrc/.zshrc")]
     pub skip_completions: bool,
-    #[clap(long, help = "Don't enable `uvenv activate` via .bashrc")]
+    #[clap(long, help = "Don't enable `uvenv activate` via .bashrc/.zshrc")]
     pub skip_activate: bool,
     #[clap(
         short,
@@ -295,7 +295,7 @@ pub struct CheckOptions {
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
 pub struct CompletionsOptions {
-    #[clap(long, short, help = "Add to ~/.bashrc")]
+    #[clap(long, short, help = "Add to ~/.bashrc (or ~/.zshrc)")]
     pub install: bool,
     // todo: support others than bash
 }
@@ -342,7 +342,7 @@ pub enum Commands {
     #[clap(about = "Run 'python' in the right venv.")]
     Runpython(RunpythonOptions),
     #[clap(
-        about = "Update ~/.bashrc with a PATH that includes the local bin directory that uvenv uses."
+        about = "Update ~/.bashrc (or ~/.zshrc) with a PATH that includes the local bin directory that uvenv uses."
     )]
     Ensurepath(EnsurepathOptions),
     #[clap(about = "Use --install to install the autocomplete script (bash).")]

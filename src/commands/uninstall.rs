@@ -28,7 +28,7 @@ pub async fn uninstall_package(
             )
         } else {
             bail!("No virtualenv for '{}', stopping.\nUse '{}' to remove an executable with that name anyway.",
-                                        &requirement_name.green(), "--force".green())
+                                        &requirement_name.green(), "--force".blue())
         };
     }
 

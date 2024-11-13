@@ -106,4 +106,6 @@ expect_used = "allow" # expect is only used when absolutely sure panic will not 
 let_underscore_must_use = "allow" # doing `let _` already says I explicitly don't care about the result!
 let_underscore_untyped = "allow" # doing `let _` already says I explicitly don't care about the result!
 non_ascii_literal = "allow" # unicode is king
+separated_literal_suffix = "allow" # otherwise it will complain about the opposite :(
+pub_with_shorthand = "allow" # otherwise it will complain about the opposite :(
 mod_module_files = "allow" # grouping mods like tests and 'commands' is useful

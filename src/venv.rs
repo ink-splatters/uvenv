@@ -19,7 +19,7 @@ pub async fn create_venv_raw(
 ) -> anyhow::Result<()> {
     if !force && venv_path.exists() {
         bail!("'{}' is already installed.\nUse '{}' to update existing tools or pass '{}' to this command to ignore this message.",
-                    &venv_path.to_str().unwrap_or_default().green(), "uvenv upgrade".green(), "--force".green())
+                    &venv_path.to_str().unwrap_or_default().green(), "uvenv upgrade".green(), "--force".blue())
     }
 
     let mut args: Vec<&str> = vec!["venv", venv_path.to_str().unwrap_or_default()];
