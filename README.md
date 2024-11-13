@@ -46,7 +46,7 @@ Run `uvenv` without any arguments to see all possible subcommands.
 - **Rust-Powered Performance (uvenv 2.0):** Starting from version 2.0, `uvenv` leverages Rust for improved performance
   and
   compatibility with `uv`.
-- **Prebuilt Binaries:** Currently, prebuilt binaries are available for x86_64 (amd64) and aarch64 (ARM64) on Linux.
+- **Prebuilt Binaries:** Currently, prebuilt binaries are available for x86_64 (amd64) and aarch64 (ARM64) on Linux, as well as Intel (x86_64) and Apple Silicon (ARM64) on macOS.
 - **Other Platforms:** If you're on a different platform, you can still use `uvx 1.x`, which is written in pure
   Python.
   Find it at [robinvandernoord/uvx](https://github.com/robinvandernoord/uvx).
