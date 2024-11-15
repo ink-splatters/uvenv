@@ -1,4 +1,5 @@
 use core::any::type_name;
+use std::fs::File;
 use std::path::{Path, PathBuf};
 
 pub trait ResultToString<T, E> {
@@ -78,5 +79,31 @@ pub const fn flatten_option_ref<T>(nested: Option<&Option<T>>) -> Option<&T> {
     match nested {
         Some(Some(version)) => Some(version),
         _ => None,
+    }
+}
+
+pub trait Touch {
+    fn touch(&self) -> anyhow::Result<()>;
+}
+
+
+fn touch<P: AsRef<Path>>(path: P) -> anyhow::Result<()> {
+    let path_ref = path.as_ref();
+    if !path_ref.exists() {
+        File::create(path_ref)?;
+    }
+    Ok(())
+}
+
+
+impl Touch for Path {
+    fn touch(&self) -> anyhow::Result<()> {
+        touch(self)
+    }
+}
+
+impl Touch for PathBuf {
+    fn touch(&self) -> anyhow::Result<()> {
+        touch(self)
     }
 }

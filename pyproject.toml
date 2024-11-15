@@ -11,7 +11,7 @@ name = "uvenv"
 # requires-python = ">=3.10"
 description = 'uvenv: pipx for uv (🦀)'
 readme = "README.md"
-license = "MIT"
+license-expression = "MIT"
 keywords = []
 authors = [
     { name = "Robin van der Noord", email = "robinvandernoord@gmail.com" },
@@ -22,18 +22,18 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Operating System :: POSIX :: Linux",
-    #    "Architecture :: x86_64",
-    #    "Architecture :: aarch64",
-
+    "Operating System :: MacOS",
+    # "Architecture :: x86_64",
+    # "Architecture :: aarch64",
     "Development Status :: 4 - Beta",
 ]
 
 dynamic = ["version"]
 
 dependencies = [
-    "uv==0.5.0", # obviously
+    "uv==0.5.1", # obviously
     "pip", # self-update
-    "patchelf", # idk, but required
+    "patchelf; platform_system == 'Linux'", # idk, but required
 ]
 
 [project.optional-dependencies]

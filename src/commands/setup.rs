@@ -1,15 +1,15 @@
-use owo_colors::OwoColorize;
-use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
-
 use crate::cli::{Process, SetupOptions};
-use crate::cmd::run_if_bash_else_warn;
 use crate::commands::activate::install_activate;
 use crate::commands::completions::completions;
 use crate::commands::ensurepath::ensure_path;
 use crate::commands::self_link::self_link;
 use crate::helpers::fmt_error;
 use crate::metadata::{get_work_dir, load_generic_msgpack, store_generic_msgpack};
+use crate::shell::{run_if_supported_shell_else_warn, SupportedShell};
+use anyhow::bail;
+use owo_colors::OwoColorize;
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Serialize, Deserialize)]
 pub struct SetupMetadata {
@@ -61,13 +61,17 @@ pub async fn store_setup_metadata(metadata: &SetupMetadata) -> anyhow::Result<()
     store_generic_msgpack(&filename, metadata).await
 }
 
-pub async fn setup_for_bash(
+pub async fn setup_for_shell(
     do_ensurepath: bool,
     do_completions: bool,
     do_activate: bool,
     force: bool,
 ) -> anyhow::Result<i32> {
     let mut any_warnings = false;
+    let shell = SupportedShell::detect();
+    if !shell.is_supported() {
+        bail!("Unsupported shell {}!", shell.name());
+    }
 
     let mut metadata = load_setup_metadata().await;
 
@@ -103,16 +107,17 @@ pub async fn setup_for_bash(
     // ignore result/output:
     let _ = self_link(false, true).await;
 
-    println!("Setup finished, you may want to run `{}` now in order to apply these changes to your shell.", "exec bash".green());
+    println!("Setup finished, you may want to run `{}` now in order to apply these changes to your shell.", 
+             format!("exec {}", shell.name()).green());
     // bool to int
     Ok(i32::from(any_warnings))
 }
 
 impl Process for SetupOptions {
     async fn process(self) -> anyhow::Result<i32> {
-        let result = run_if_bash_else_warn(move |_| {
+        let result = run_if_supported_shell_else_warn(move |_| {
             // some logic here
-            let result = setup_for_bash(
+            let result = setup_for_shell(
                 !self.skip_ensurepath,
                 !self.skip_completions,
                 !self.skip_activate,

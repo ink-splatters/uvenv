@@ -19,7 +19,7 @@ pub async fn create_venv_raw(
 ) -> anyhow::Result<()> {
     if !force && venv_path.exists() {
         bail!("'{}' is already installed.\nUse '{}' to update existing tools or pass '{}' to this command to ignore this message.",
-                    &venv_path.to_str().unwrap_or_default().green(), "uvenv upgrade".green(), "--force".green())
+                    &venv_path.to_str().unwrap_or_default().green(), "uvenv upgrade".green(), "--force".blue())
     }
 
     let mut args: Vec<&str> = vec!["venv", venv_path.to_str().unwrap_or_default()];
@@ -32,6 +32,9 @@ pub async fn create_venv_raw(
         args.push("--seed");
     }
 
+    // using 'uv' via cli might not be ideal, but a lot of work is done in private `venv_impl`:
+    // https://github.com/astral-sh/uv/blob/main/crates/uv/src/commands/venv.rs#L127
+    // so using the public api via cli is easiest:
     uv(&args).await?;
 
     Ok(())
@@ -104,4 +107,26 @@ pub fn venv_script(
 ) -> String {
     let script_path = venv.scripts().join(script);
     script_path.to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_create_venv_raw() {
+        let path = PathBuf::from("/tmp/test-test_create_venv_raw");
+        if path.exists() {
+            remove_venv(&path).await.expect("Should remove venv");
+        }
+        assert!(!path.exists());
+
+        create_venv_raw(&path, None, false, true)
+            .await
+            .expect("Should create venv");
+        assert!(path.exists());
+
+        remove_venv(&path).await.expect("Should remove venv");
+        assert!(!path.exists());
+    }
 }

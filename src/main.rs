@@ -12,6 +12,9 @@ mod tests;
 mod uv;
 mod venv;
 
+mod macros;
+mod shell;
+
 use std::io;
 
 use clap::{Command, CommandFactory, Parser};
@@ -21,6 +24,7 @@ use crate::cli::{Args, Process};
 use crate::commands::activate::generate_activate;
 use crate::commands::ensurepath::ensure_path_generate;
 use crate::helpers::fmt_error;
+use crate::shell::SupportedShell;
 use std::process::exit;
 
 pub fn print_completions<G: Generator>(
@@ -31,7 +35,7 @@ pub fn print_completions<G: Generator>(
     generate(gen, cmd, cmd.get_name().to_owned(), &mut io::stdout());
 }
 
-pub async fn generate_bash(generator: Shell) {
+pub async fn generate_completions_shell(generator: Shell) {
     let mut cmd = Args::command();
 
     let args = cmd.clone().get_matches();
@@ -46,6 +50,7 @@ pub async fn generate_bash(generator: Shell) {
         },
         _ => {
             // other cases: show regular completions
+            // note: this should support zsh but doesn't seem to actually work :(
             print_completions(generator, &mut cmd);
             // todo: dynamic completions for e.g. `uvenv upgrade <venv>`
         },
@@ -53,12 +58,25 @@ pub async fn generate_bash(generator: Shell) {
 }
 
 pub async fn generate_code(target: Shell) -> i32 {
-    if target == Shell::Bash {
-        generate_bash(target).await;
-        0
-    } else {
-        eprintln!("Error: only 'bash' is supported at this moment.");
-        126
+    match target {
+        Shell::Bash | Shell::Zsh => {
+            generate_completions_shell(target).await;
+            0
+        },
+        Shell::Elvish | Shell::Fish | Shell::PowerShell => {
+            eprintln!(
+                "Error: only '{}' are supported at this moment.",
+                SupportedShell::list_options_formatted()
+            );
+            126
+        },
+        #[expect(
+            clippy::todo,
+            reason = "This is used in a catch all that should be exhaustive"
+        )]
+        _ => {
+            todo!("Unknown shell, not implemented yet!");
+        },
     }
 }
 

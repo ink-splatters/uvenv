@@ -1,25 +1,28 @@
 use crate::cli::{CompletionsOptions, Process};
-use anyhow::Context;
+use anyhow::{bail, Context};
 
-use crate::cmd::run_if_bash_else_warn;
+use crate::shell::{run_if_supported_shell_else_warn, SupportedShell};
 use owo_colors::OwoColorize;
 
-use super::ensurepath::add_to_bashrc;
-
 pub async fn completions(install: bool) -> anyhow::Result<i32> {
-    let for_bash = r#"eval "$(uvenv --generate=bash completions)""#;
+    let shell = SupportedShell::detect();
+    let shell_code = format!(r#"eval "$(uvenv --generate={} completions)""#, shell.name());
+    let Some(rc_file) = shell.rc_file() else {
+        bail!("Unsupported shell {}!", shell.name());
+    };
 
     if install {
         // you probably want `uvenv setup` but keep this for legacy.
-        add_to_bashrc(for_bash, true).await?;
+        shell.add_to_rcfile(&shell_code, true).await?;
         Ok(0)
     } else {
-        Ok(run_if_bash_else_warn(|_shell| {
+        Ok(run_if_supported_shell_else_warn(|_shell| {
             eprintln!(
-                "Tip: place this line in your ~/.bashrc or run '{}' to do this automatically!",
+                "Tip: place this line in your {} or run '{}' to do this automatically!",
+                format!("~/{rc_file}").blue(),
                 "uvenv setup".green()
             );
-            println!("{for_bash}");
+            println!("{shell_code}");
             Some(0)
         })
         .unwrap_or(1))

@@ -1,35 +1,32 @@
 use crate::cli::{ActivateOptions, Process};
-use crate::cmd::run_if_bash_else_warn;
-use crate::commands::ensurepath::add_to_bashrc;
+use crate::shell::{run_if_supported_shell_else_warn, SupportedShell};
 use owo_colors::OwoColorize;
 
 pub async fn generate_activate() -> &'static str {
-    // Used by `uvenv --generate bash activate _`
-    // note: only bash is supported right now!
-    include_str!("../shell/activate.sh")
+    // Used by `uvenv --generate bash/zsh activate _`
+    let shell = SupportedShell::detect();
+    shell.activation_script()
 }
 
 pub async fn install_activate() -> anyhow::Result<()> {
-    let bash_code = r#"eval "$(uvenv --generate=bash activate _)""#;
-    // call eval instead of actually adding the bash function() to bashrc
+    let shell = SupportedShell::detect();
+    let sh_code = format!(r#"eval "$(uvenv --generate={} activate _)""#, shell.name());
+    // call eval instead of actually adding the shell function() to bashrc/zshrc
     // so updates are available immediately
-    add_to_bashrc(bash_code, true).await
+    shell.add_to_rcfile(&sh_code, true).await
 }
 
 impl Process for ActivateOptions {
     async fn process(self) -> anyhow::Result<i32> {
-        // wait a minute, this is not a bash script!
-        // show warning with setup info:
-
         Ok(
-            run_if_bash_else_warn(|shell| {
+            run_if_supported_shell_else_warn(|shell| {
                 println!("Your shell ({}) is supported, but the shell extension is not set up.\n\
-                You can use `uvenv setup` to do this automatically, or add `{}` to your bashrc file to enable it manually.",
+                You can use `uvenv setup` to do this automatically, or add `{}` to your shell's configuration file to enable it manually.",
                          &shell.blue(),
-                         r#"eval "$(uvenv --generate=bash activate _)""#.green()
+                         format!(r#"eval "$(uvenv --generate={shell} activate _)""#).green()
                 );
                 Some(1)
-            }).unwrap_or(126) // = cannot execute, if not BASH
+            }).unwrap_or(126) // Return 126 if shell is unsupported
         )
     }
 }
