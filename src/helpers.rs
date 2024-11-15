@@ -86,7 +86,6 @@ pub trait Touch {
     fn touch(&self) -> anyhow::Result<()>;
 }
 
-
 fn touch<P: AsRef<Path>>(path: P) -> anyhow::Result<()> {
     let path_ref = path.as_ref();
     if !path_ref.exists() {
@@ -94,7 +93,6 @@ fn touch<P: AsRef<Path>>(path: P) -> anyhow::Result<()> {
     }
     Ok(())
 }
-
 
 impl Touch for Path {
     fn touch(&self) -> anyhow::Result<()> {

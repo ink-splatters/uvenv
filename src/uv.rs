@@ -140,6 +140,8 @@ pub async fn uv_search_python(python: Option<&String>) -> Option<String> {
         &client,
         &cache,
         None,
+        None,
+        None,
     )
     .await
     .ok()?;

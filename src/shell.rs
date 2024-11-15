@@ -1,11 +1,11 @@
 use crate::commands::ensurepath::{append, now};
+use crate::helpers::Touch;
 use crate::macros::iterable_enum_macro::iterable_enum;
 use crate::metadata::get_home_dir;
 use anyhow::{anyhow, Context};
 use core::fmt::{Display, Formatter, Write};
 use owo_colors::OwoColorize;
 use std::env;
-use crate::helpers::Touch;
 
 iterable_enum! {
     #[derive(Debug)]
@@ -118,7 +118,7 @@ pub async fn add_to_rcfile(
 ) -> anyhow::Result<()> {
     let path = get_home_dir().join(filename);
     path.touch()?; // ensure it exists
-    
+
     let now = now();
     let mut final_text = String::from("\n");
     if with_comment {
@@ -128,7 +128,7 @@ pub async fn add_to_rcfile(
 
     final_text.push_str(text);
     final_text.push('\n');
-    
+
     append(&path, &final_text)
         .await
         .with_context(|| format!("Trying to append text to your {filename}"))
