@@ -43,17 +43,17 @@ anstyle = "1.0" # color styling for clap
 owo-colors = "4.1" # color styling for strings
 
 # uv
-# uv-requirements = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.5" }
-uv-cache = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.5" }
-uv-client = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.5" }
-uv-distribution-types = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.5" }
-uv-installer = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.5" }
-uv-python = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.5" }
-# uv-resolver = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.5" }
-uv-pep440 = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.5" }
-uv-pep508 = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.5" }
-# install-wheel-rs = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.5" }
-uv-pypi-types = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.5" }
+# uv-requirements = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.6" }
+uv-cache = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.6" }
+uv-client = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.6" }
+uv-distribution-types = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.6" }
+uv-installer = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.6" }
+uv-python = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.6" }
+# uv-resolver = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.6" }
+uv-pep440 = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.6" }
+uv-pep508 = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.6" }
+# install-wheel-rs = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.6" }
+uv-pypi-types = { git = "https://github.com/astral-sh/uv.git", tag = "0.5.6" }
 
 [patch.crates-io]
 # black magic fuckery, required after 0.2.18 and before 0.5.2, otherwise uv-client won't compile; https://github.com/astral-sh/reqwest-middleware
@@ -104,3 +104,4 @@ non_ascii_literal = "allow" # unicode is king
 separated_literal_suffix = "allow" # otherwise it will complain about the opposite :(
 pub_with_shorthand = "allow" # otherwise it will complain about the opposite :(
 mod_module_files = "allow" # grouping mods like tests and 'commands' is useful
+unused_trait_names = "allow" # heh?
