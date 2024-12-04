@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
-#!/bin/bash
-set -e
 
 rm -rf target/wheels/
+
+. venv/bin/activate
 
 # without zig because that breaks stuff on mac
 maturin build --release --strip --target aarch64-apple-darwin #--zig
