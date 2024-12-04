@@ -15,7 +15,7 @@ struct Issues<'metadata> {
     scripts: BTreeMap<&'metadata str, Vec<String>>,
 }
 
-impl<'metadata> Issues<'metadata> {
+impl Issues<'_> {
     pub const fn new() -> Self {
         Self {
             outdated: Vec::new(),

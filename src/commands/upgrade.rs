@@ -80,7 +80,7 @@ fn build_msg(
     msg
 }
 
-pub async fn _upgrade_package(
+pub async fn upgrade_package_from_requirement(
     requirement: &Requirement,
     metadata: &mut Metadata,
     environ: &PythonEnvironment,
@@ -153,7 +153,7 @@ pub async fn upgrade_package(
 
     let mut metadata = Metadata::for_requirement(&requirement, &config).await;
 
-    _upgrade_package(
+    upgrade_package_from_requirement(
         &requirement,
         &mut metadata,
         &environ,

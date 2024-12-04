@@ -37,7 +37,7 @@ fn red_or_green(
 }
 
 // separate, public function for testing
-pub fn _compare_versions(
+pub fn compare_versions(
     current: &str,
     latest: &str,
 ) -> bool {
@@ -50,7 +50,7 @@ pub fn is_latest(
 ) -> bool {
     let Some(version) = latest else { return false };
 
-    _compare_versions(current, &version.to_string())
+    compare_versions(current, &version.to_string())
 }
 
 pub const fn uvenv_version() -> &'static str {

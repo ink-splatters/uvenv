@@ -17,7 +17,7 @@ use std::path::{Path, PathBuf};
 
 use uv_python::PythonEnvironment;
 
-pub async fn _install_package<S: AsRef<str>>(
+pub async fn uv_install_package<S: AsRef<str>>(
     package_name: &str,
     inject: &[S],
     no_cache: bool,
@@ -147,7 +147,7 @@ pub async fn install_package<S: AsRef<str> + Display>(
     let venv_path = ensure_venv(maybe_venv, &requirement, python, force).await?;
     let uv_venv = activate_venv(&venv_path).await?;
 
-    if let Err(err) = _install_package(install_spec, inject, no_cache, force, editable).await {
+    if let Err(err) = uv_install_package(install_spec, inject, no_cache, force, editable).await {
         let _ = remove_venv(&venv_path).await;
 
         return Err(err);

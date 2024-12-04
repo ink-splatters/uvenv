@@ -57,7 +57,7 @@ fn parse_changelog(markdown: &str) -> Changelogs {
 
     changelog
 }
-async fn _get_changelog() -> reqwest::Result<String> {
+async fn get_changelog_internal() -> reqwest::Result<String> {
     let resp = reqwest::get(CHANGELOG_URL).await?.error_for_status()?;
 
     let body = resp.text().await?;
@@ -66,7 +66,7 @@ async fn _get_changelog() -> reqwest::Result<String> {
 }
 
 pub async fn get_changelog() -> anyhow::Result<String> {
-    _get_changelog().await.map_err(|err| anyhow!(err)) // reqwest to anyhow
+    get_changelog_internal().await.map_err(|err| anyhow!(err)) // reqwest to anyhow
 }
 
 fn color(category: &str) -> String {

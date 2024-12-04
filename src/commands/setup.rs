@@ -38,7 +38,7 @@ fn setup_metadata_filename() -> PathBuf {
     workdir.join("setup.metadata")
 }
 
-async fn _load_setup_metadata() -> anyhow::Result<SetupMetadata> {
+async fn maybe_load_setup_metadata() -> anyhow::Result<SetupMetadata> {
     let filename = setup_metadata_filename();
 
     let mut buf = Vec::new(); // allocate memory for the object
@@ -50,7 +50,7 @@ async fn _load_setup_metadata() -> anyhow::Result<SetupMetadata> {
 }
 
 pub async fn load_setup_metadata() -> SetupMetadata {
-    _load_setup_metadata()
+    maybe_load_setup_metadata()
         .await
         .unwrap_or_else(|_| SetupMetadata::new())
 }

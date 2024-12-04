@@ -6,7 +6,7 @@ use uv_pep508::Requirement;
 use uv_python::PythonEnvironment;
 
 use crate::cli::{Process, RunOptions};
-use crate::commands::install::_install_package;
+use crate::commands::install::uv_install_package;
 use crate::commands::runpython::process_subprocess;
 use crate::helpers::PathAsStr;
 use crate::pip::parse_requirement;
@@ -15,7 +15,7 @@ use crate::uv::uv_get_installed_version;
 use crate::venv::{activate_venv, create_venv, remove_venv};
 use core::fmt::Write;
 
-async fn _find_executable(
+async fn find_executable_raw(
     requirement: &Requirement,
     package_spec: &str,
     venv: &PythonEnvironment,
@@ -64,7 +64,7 @@ pub async fn find_executable(
 ) -> anyhow::Result<PathBuf> {
     let executable = match binary {
         Some(executable) => executable.to_owned(),
-        None => _find_executable(requirement, package_spec, venv).await?,
+        None => find_executable_raw(requirement, package_spec, venv).await?,
     };
 
     let full_exec_path = venv_path.join("bin").join(executable);
@@ -121,7 +121,7 @@ pub async fn run_package<S: AsRef<str>>(
     let venv = &activate_venv(venv_path).await?;
 
     // already expects activated venv:
-    _install_package(package_spec, inject, no_cache, false, false).await?;
+    uv_install_package(package_spec, inject, no_cache, false, false).await?;
 
     // ### 3 ###
     let result = run_executable(&requirement, binary, package_spec, venv, venv_path, args).await;

@@ -67,7 +67,7 @@ pub trait PathToString<'path>: PathAsStr<'path> {
 }
 
 /// `PathToString` can't be implemented for Path because sizes need to be known at comptime
-impl<'path> PathToString<'path> for PathBuf {
+impl PathToString<'_> for PathBuf {
     fn to_string(self) -> String {
         self.into_os_string().into_string().unwrap_or_default()
     }

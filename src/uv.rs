@@ -21,24 +21,12 @@ use uv_pep508::VersionOrUrl::VersionSpecifier;
 
 use crate::helpers::PathToString;
 
-pub async fn _get_uv_binary() -> Option<String> {
-    // if bundled with entrypoint:
-    // arg 0 = python
-    // arg 1 = .../bin/uvenv
-    // elif bundled as bin, use current_exe (because arg 0 is just 'uvenv' instead of a path):
-
-    // let Some(binary) = env::args().nth(0) else {
-    //     return None;
-    // };
-    // let Ok(binary_path) = PathBuf::from_str(&binary) else {
-    //     return None;
-    // };
-
+pub async fn maybe_get_uv_binary() -> Option<String> {
     find_sibling("uv").await.map(PathToString::to_string)
 }
 
 pub async fn get_uv_binary() -> String {
-    _get_uv_binary().await.unwrap_or_else(
+    maybe_get_uv_binary().await.unwrap_or_else(
         // fallback, hope 'uv' is available in global scope:
         || String::from("uv"),
     )
