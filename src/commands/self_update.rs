@@ -11,7 +11,7 @@ use crate::uv::{system_environment, uv_freeze, PythonSpecifier};
 use owo_colors::OwoColorize;
 use regex::Regex;
 
-fn extract_version(
+pub fn extract_version(
     freeze_output: &str,
     needle: &str,
 ) -> Option<String> {
@@ -31,15 +31,22 @@ fn extract_version(
     None
 }
 
-pub async fn get_package_versions_uv<S: AsRef<str>>(
-    python: &Path,
+pub fn get_package_versions_uv<S: AsRef<str>>(
+    python_path: &Path,
     packages: &[S],
     default: &str,
 ) -> Vec<String> {
-    let output = uv_freeze(PythonSpecifier::Path(python))
-        .await
-        .unwrap_or_default();
+    let python = PythonSpecifier::Path(python_path);
 
+    let Ok(venv) = python.into_environment() else {
+        // no venv, return early
+        return vec![];
+    };
+
+    // raw 'freeze' output:
+    let output = uv_freeze(&venv).unwrap_or_default();
+
+    // filtered and parsed:
     packages
         .iter()
         .map(|pkg_name| {
@@ -182,7 +189,7 @@ pub async fn self_update_via_uv(
         msg.push_str(" and patchelf");
     }
 
-    let old = get_package_versions_uv(&python_exe, &to_track, "?").await;
+    let old = get_package_versions_uv(&python_exe, &to_track, "?");
 
     let promise = run(&uv, &args, None);
 
@@ -193,7 +200,7 @@ pub async fn self_update_via_uv(
     )
     .await?;
 
-    let new = get_package_versions_uv(&python_exe, &to_track, "?").await;
+    let new = get_package_versions_uv(&python_exe, &to_track, "?");
 
     handle_self_update_result(&to_track, &old, &new);
 

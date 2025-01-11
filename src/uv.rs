@@ -167,7 +167,7 @@ pub fn uv_get_installed_version(
     )
 }
 
-pub fn uv_freeze_environ(python: &PythonEnvironment) -> anyhow::Result<String> {
+pub fn uv_freeze(python: &PythonEnvironment) -> anyhow::Result<String> {
     // variant with BTree return type is also possible, but everything is currently built on
     // the `pip freeze` output string format, so use that for now:
     let mut result = String::new();
@@ -228,7 +228,7 @@ pub enum PythonSpecifier<'src> {
 }
 
 impl PythonSpecifier<'_> {
-    fn into_environment(self) -> anyhow::Result<PythonEnvironment> {
+    pub fn into_environment(self) -> anyhow::Result<PythonEnvironment> {
         match self {
             PythonSpecifier::Path(path) => environment_from_path(path),
             PythonSpecifier::PathBuf(buf) => environment_from_path(buf.as_path()),
@@ -237,12 +237,6 @@ impl PythonSpecifier<'_> {
             PythonSpecifier::Environ(env) => Ok(env),
         }
     }
-}
-
-pub async fn uv_freeze(python: PythonSpecifier<'_>) -> anyhow::Result<String> {
-    let environment = python.into_environment()?;
-
-    uv_freeze_environ(&environment)
 }
 
 pub trait Helpers {
