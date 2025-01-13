@@ -1,6 +1,7 @@
+use crate::commands::self_update::extract_version;
 use crate::pypi::get_latest_version;
 use crate::symlinks::check_symlink;
-use crate::uv::{uv_get_installed_version, uv_venv, Helpers};
+use crate::uv::{uv_freeze, uv_get_installed_version, uv_venv, Helpers, PythonSpecifier};
 use anyhow::anyhow;
 use core::cmp::Ordering;
 use core::fmt::Write;
@@ -133,12 +134,32 @@ impl Metadata {
         }
     }
 
+    /// return `PythonEnvironment` (if available) for this metadata
+    pub fn venv(&self) -> Option<PythonEnvironment> {
+        let venv_dir = venv_path(&self.name);
+
+        PythonSpecifier::PathBuf(&venv_dir).into_environment().ok()
+    }
+
     #[expect(dead_code, reason = "Useful variant of `installed_version_parsed`")]
     pub fn requested_version_parsed(&self) -> Version {
         Version::from_str(&self.requested_version).unwrap_or_else(|_| version_0())
     }
+
     pub fn installed_version_parsed(&self) -> Version {
         Version::from_str(&self.installed_version).unwrap_or_else(|_| version_0())
+    }
+
+    // check actual currently installed version
+    pub fn find_currently_installed_version_raw(&self) -> Option<String> {
+        let venv = self.venv()?;
+        let frozen = uv_freeze(&venv).ok()?;
+
+        extract_version(&frozen, &self.name)
+    }
+    pub fn find_currently_installed_version(&self) -> Option<Version> {
+        let version_raw = self.find_currently_installed_version_raw()?;
+        Version::from_str(&version_raw).ok()
     }
 
     pub fn find(req: &Requirement) -> Self {
@@ -271,7 +292,12 @@ impl Metadata {
 
         if let Some(latest_version) = get_latest_version(&self.name, !prereleases, constraint).await
         {
-            let installed_version = self.installed_version_parsed();
+            let installed_version = self
+                // first try getting latest from venv:
+                .find_currently_installed_version()
+                // fallback to cached version:
+                .unwrap_or_else(|| self.installed_version_parsed());
+
             self.available_version = latest_version.to_string();
             self.outdated = latest_version > installed_version;
         }

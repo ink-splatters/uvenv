@@ -2,6 +2,23 @@
 
 <!--next-version-placeholder-->
 
+## 3.5.3 (2025-01-11)
+
+### Fix
+
+* fix(check): look at actually installed version via freeze instead of cached installed version from metadata
+    + relevant when package is updated outside of uvenv (manual pip update or package self-update)
+
+### Updates
+
+* upgrade to `uv` 0.5.17
+
+## 3.5.2 (2025-01-03)
+
+### Updates
+
+* upgrade to `uv` 0.5.14
+
 ## 3.5.1 (2024-12-04)
 
 ### Updates
