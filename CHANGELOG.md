@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## 3.6.0 (2025-01-29)
+
+### Feature
+
+* extend functionality of `uvenv check` to check interpreter of shebang scripts
+
+### Updates
+
+* upgrade to `uv` 0.5.25
+
 ## 3.5.3 (2025-01-11)
 
 ### Fix
