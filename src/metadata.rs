@@ -74,6 +74,85 @@ pub fn version_0() -> Version {
     Version::from_str("0.0.0").expect("Version 0.0.0 should be parseable.")
 }
 
+#[derive(Debug)]
+pub enum FileType {
+    Shebang { interpreter: String },
+    Binary,
+    Unusable(String),
+}
+
+async fn identify_file(path: &Path) -> anyhow::Result<FileType> {
+    if !path.exists() {
+        return Ok(FileType::Unusable("No Such File".to_owned()));
+    }
+
+    if path.is_dir() {
+        return Ok(FileType::Unusable("Directory".to_owned()));
+    }
+
+    let mut file = File::open(path).await?;
+    let mut buffer = [0_u8; 1024];
+    let n = file.read(&mut buffer).await?;
+
+    if n == 0 {
+        return Ok(FileType::Unusable("Empty".to_owned()));
+    }
+
+    let bytes = &buffer.get(..n).unwrap_or_default();
+
+    // Check for shebang (#!)
+    if bytes.starts_with(b"#!") {
+        let interpreter = String::from_utf8_lossy(bytes)
+            .lines()
+            .next()
+            .unwrap_or("")
+            .trim()
+            .to_owned();
+
+        return Ok(FileType::Shebang { interpreter });
+    }
+
+    // Check if file is binary
+    let is_binary = bytes.iter().any(|&byte| byte == 0 || byte > 127);
+    if is_binary {
+        return Ok(FileType::Binary);
+    }
+
+    Ok(FileType::Unusable("No Shebang".to_owned()))
+}
+
+pub fn check_shebang(shebang: &str) -> bool {
+    let Some(stripped_path) = shebang.strip_prefix("#!") else {
+        return false;
+    };
+    let interpreter_path = Path::new(stripped_path);
+
+    // should chmod also be checked?
+    interpreter_path.exists()
+}
+
+pub async fn check_executable(script_name: &str) -> Option<String> {
+    // todo
+    let script_path = ensure_bin_dir().await.join(script_name);
+    let Ok(result) = identify_file(&script_path).await else {
+        return Some("Could not identify script type".to_owned());
+    };
+    match result {
+        FileType::Shebang { interpreter } => {
+            if check_shebang(&interpreter) {
+                None
+            } else {
+                Some("Interpreter does not exist".to_owned())
+            }
+        },
+        FileType::Binary => {
+            // should chmod also be checked?
+            None
+        },
+        FileType::Unusable(reason) => Some(reason),
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub struct Metadata {
     // order is important!!
@@ -319,6 +398,18 @@ impl Metadata {
             //                                if True, the script is valid -> skip from filter_map
             .filter_map(|(key, val)| if *val { None } else { Some(key.to_owned()) })
             .collect()
+    }
+
+    pub async fn broken_scripts(&self) -> Vec<String> {
+        let mut result = vec![];
+
+        for script in self.scripts.keys() {
+            if let Some(reason) = check_executable(script).await {
+                result.push(reason);
+            }
+        }
+
+        result
     }
 
     pub fn format_installed_version(&self) -> String {

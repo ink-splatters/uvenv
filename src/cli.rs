@@ -282,6 +282,8 @@ pub struct CheckOptions {
     pub skip_scripts: bool,
     #[clap(long, help = "Don't check for updates", conflicts_with_all = ["show_prereleases", "ignore_constraints"])]
     pub skip_updates: bool,
+    #[clap(long, help = "Don't check if scripts still have valid interpreter.")]
+    pub skip_broken: bool,
     #[clap(long, help = "Show prerelease updates", conflicts_with_all = ["skip_updates"])]
     pub show_prereleases: bool,
     #[clap(long, help="Ignore version constraints when checking updates", conflicts_with_all = ["skip_updates"])]

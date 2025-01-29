@@ -12,6 +12,8 @@ struct Issues<'metadata> {
     #[serde(borrow)]
     outdated: Vec<&'metadata str>,
     #[serde(borrow)]
+    broken: BTreeMap<&'metadata str, Vec<String>>,
+    #[serde(borrow)]
     scripts: BTreeMap<&'metadata str, Vec<String>>,
 }
 
@@ -19,6 +21,7 @@ impl Issues<'_> {
     pub const fn new() -> Self {
         Self {
             outdated: Vec::new(),
+            broken: BTreeMap::new(),
             scripts: BTreeMap::new(),
         }
     }
@@ -83,6 +86,18 @@ impl Issues<'_> {
             println!("{}", "💡 Tip: you can use `uvenv reinstall <package>` to reinstall an environment, which might fix the missing scripts.".blue());
         }
 
+        if !self.broken.is_empty() {
+            println!("{}", "\n🔶 Broken Scripts:".bold().yellow());
+            for (script, problems) in &self.broken {
+                println!("  - {}", format!("{script}:").red().bold());
+                for problem in problems {
+                    println!("    - {}", problem.red());
+                }
+            }
+
+            println!("{}", "💡 Tip: you can use `uvenv reinstall <package>` to reinstall an environment, which might fix the broken scripts.".blue());
+        }
+
         issue_count
     }
 }
@@ -104,6 +119,8 @@ impl Process for CheckOptions {
 
         let items = list_packages(&config, Some(&self.venv_names), None).await?;
 
+        // collect issues:
+
         let mut issues = Issues::new();
 
         for metadata in &items {
@@ -115,7 +132,16 @@ impl Process for CheckOptions {
             if !self.skip_updates && metadata.outdated {
                 issues.outdated.push(&metadata.name);
             }
+
+            if !self.skip_broken {
+                let broken_scripts = metadata.broken_scripts().await;
+                if !broken_scripts.is_empty() {
+                    issues.broken.insert(&metadata.name, broken_scripts);
+                }
+            }
         }
+
+        // show issues:
 
         if self.json {
             issues.print_json()
