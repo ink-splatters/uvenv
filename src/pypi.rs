@@ -7,6 +7,7 @@ use uv_pypi_types::Yanked;
 
 use rkyv::api::high::HighDeserializer;
 use std::collections::HashSet;
+use tokio::sync::Semaphore;
 use uv_client::{
     OwnedArchive, RegistryClient, RegistryClientBuilder, SimpleMetadata, SimpleMetadatum,
     VersionFiles,
@@ -22,9 +23,17 @@ impl SimplePypi {
         &'index self,
         package_name: &PackageName,
     ) -> anyhow::Result<Vec<(&'index IndexUrl, OwnedArchive<SimpleMetadata>)>> {
+        // 1 permit is sufficient
+        let download_concurrency = Semaphore::new(1);
+
         let res = self
             .0
-            .simple(package_name, None, &IndexCapabilities::default())
+            .simple(
+                package_name,
+                None,
+                &IndexCapabilities::default(),
+                &download_concurrency,
+            )
             .await?;
 
         Ok(res)
