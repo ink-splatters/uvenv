@@ -13,8 +13,8 @@ use std::collections::BTreeMap;
 use uv_pep508::Requirement;
 
 use anyhow::{bail, Context};
+use core::fmt::Write;
 use std::path::{Path, PathBuf};
-
 use uv_python::PythonEnvironment;
 
 pub async fn uv_install_package<S: AsRef<str>>(
@@ -110,7 +110,7 @@ pub async fn install_symlinks(
     requirement: &Requirement,
     force: bool,
     binaries: &[&str],
-) -> anyhow::Result<()> {
+) -> anyhow::Result<BTreeMap<String, bool>> {
     let venv_root = venv.root();
 
     let symlinks = find_symlinks(requirement, &meta.installed_version, venv).await;
@@ -127,10 +127,10 @@ pub async fn install_symlinks(
         results.insert(symlink, success);
     }
 
-    meta.scripts = results;
+    meta.scripts = results.clone();
     meta.save(venv_root).await?;
 
-    Ok(())
+    Ok(results)
 }
 
 pub async fn install_package<S: AsRef<str> + Display>(
@@ -164,13 +164,26 @@ pub async fn install_package<S: AsRef<str> + Display>(
     )
     .await?;
 
-    install_symlinks(&mut metadata, &uv_venv, &requirement, force, &[]).await?;
+    let symlink_results =
+        install_symlinks(&mut metadata, &uv_venv, &requirement, force, &[]).await?;
 
-    Ok(format!(
-        "📦 {} ({}) installed!",
+    let mut feedback = format!(
+        "📦 {} ({}) installed:", // :package:
         requirement_name,
         metadata.installed_version.cyan()
-    )) // :package:
+    );
+
+    for (script, success) in symlink_results {
+        let text = if success {
+            format!("- {}", script.green())
+        } else {
+            format!("- {}", script.red())
+        };
+
+        let _ = write!(feedback, "\n  {text}",);
+    }
+
+    Ok(feedback)
 }
 
 impl Process for InstallOptions {

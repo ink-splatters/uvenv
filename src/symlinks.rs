@@ -1,12 +1,15 @@
 use anyhow::{anyhow, bail, Context};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-use uv_pep508::Requirement;
+use uv_pep508::{PackageName, Requirement};
 use uv_python::PythonEnvironment;
 
 use crate::helpers::PathAsStr;
 use crate::metadata::ensure_bin_dir;
 use configparser::ini::Ini;
+use uv_distribution_types::Name;
+use uv_installer::SitePackages;
+use uv_tool::entrypoint_paths;
 
 pub async fn console_scripts(entry_points_path: &str) -> anyhow::Result<Vec<String>> {
     let Ok(ini) = tokio::fs::read_to_string(entry_points_path).await else {
@@ -25,6 +28,37 @@ pub async fn console_scripts(entry_points_path: &str) -> anyhow::Result<Vec<Stri
     Ok(console_scripts.keys().map(ToString::to_string).collect())
 }
 
+/// Source: `https://github.com/astral-sh/uv/blob/ee2bdc21fab077aaef17c94242b4cf6a10c013e1/crates/uv/src/commands/tool/run.rs#L281`
+fn get_entrypoints(
+    from: &PackageName,
+    site_packages: &SitePackages,
+) -> anyhow::Result<Vec<(String, PathBuf)>> {
+    let installed = site_packages.get_packages(from);
+    let Some(installed_dist) = installed.first().copied() else {
+        bail!("Expected at least one requirement")
+    };
+
+    Ok(entrypoint_paths(
+        site_packages,
+        installed_dist.name(),
+        installed_dist.version(),
+    )?)
+}
+
+fn find_symlinks_uv(
+    requirement: &Requirement,
+    venv: &PythonEnvironment,
+) -> anyhow::Result<Vec<String>> {
+    let site_packages = SitePackages::from_environment(venv)?;
+    let entrypoints = get_entrypoints(&requirement.name, &site_packages)?;
+
+    Ok(entrypoints
+        .iter()
+        .map(|(name, _path)| name.to_owned())
+        .collect())
+}
+
+#[expect(clippy::shadow_unrelated, reason = "Both `scripts` are related.")]
 pub async fn find_symlinks(
     requirement: &Requirement,
     installed_version: &str,
@@ -36,12 +70,22 @@ pub async fn find_symlinks(
         installed_version
     );
 
+    // uv:
+    let scripts = find_symlinks_uv(requirement, venv).unwrap_or_default();
+
+    if !scripts.is_empty() {
+        return scripts;
+    }
+
+    // fallback:
+
     let entrypoints_ini = venv
         .interpreter()
         .purelib()
         .join(dist_info_fname)
         .join("entry_points.txt");
     let entrypoints_path = entrypoints_ini.as_str();
+
     let scripts = console_scripts(entrypoints_path).await.unwrap_or_default();
 
     if scripts.is_empty() {
