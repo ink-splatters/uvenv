@@ -52,9 +52,8 @@ impl Default for SimplePypi {
 
 /// usage: e.g. `let x: Option<VersionFiles> = deserialize(&metadatum.files);`
 /// Note: pycharm will probably complain, but it WILL work for `ArchivedSimpleMetadatum`!
-pub fn rkyv_deserialize<T>(archived: &Archived<T>) -> Option<T>
+pub fn rkyv_deserialize<T: Archive>(archived: &Archived<T>) -> Option<T>
 where
-    T: Archive,
     T::Archived: Deserialize<T, HighDeserializer<rkyv::rancor::Error>>,
 {
     deserialize(archived).ok()

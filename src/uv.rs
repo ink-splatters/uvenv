@@ -32,10 +32,10 @@ pub async fn get_uv_binary() -> String {
     )
 }
 
-pub async fn uv<S>(args: &[S]) -> anyhow::Result<bool>
-where
-    S: AsRef<OsStr>,
-{
+/// Start `uv` in a subprocess and handle its output
+/// Note: while `uv::main` exists, it's not recommended to use as an entrypoint.
+/// It also calls `exit`, stopping `uvenv` instead of returning an exit code.
+pub async fn uv<S: AsRef<OsStr>>(args: &[S]) -> anyhow::Result<bool> {
     // venv could be unavailable, use 'uv' from this library's requirement
     let script = get_uv_binary().await;
 
