@@ -2,12 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## 3.6.2 (2025-02-14)
+
+### Updates
+
+* bump to uv 0.6.0
+
 ## 3.6.1 (2025-02-05)
 
 ### Fix
 
 * improve script detection for symlinks by using uv's logic
-  * This means the binary `task` will be found when installing `go-task-bin`
+    * This means the binary `task` will be found when installing `go-task-bin`
 
 ### Updates
 
