@@ -65,11 +65,16 @@ fn deserialize_metadata(datum: &Archived<SimpleMetadatum>) -> Option<SimpleMetad
     full
 }
 
-const fn is_yanked(yanked: Option<&Yanked>) -> bool {
-    match yanked {
-        None => false,
-        Some(Yanked::Reason(_)) => true,
-        Some(Yanked::Bool(bool)) => *bool,
+fn is_yanked(yanked: Option<Box<Yanked>>) -> bool {
+    let Some(boxed) = yanked else {
+        // early return if yanked is None
+        return false;
+    };
+
+    // dereference to get value out of box:
+    match *boxed {
+        Yanked::Reason(_) => true,
+        Yanked::Bool(status) => status,
     }
 }
 
@@ -83,12 +88,12 @@ fn find_non_yanked_versions(metadata: &OwnedArchive<SimpleMetadata>) -> HashSet<
 
     for file in files_data {
         for source_dist in file.source_dists {
-            if !is_yanked(source_dist.file.yanked.as_ref()) {
+            if !is_yanked(source_dist.file.yanked) {
                 valid_versions.insert(source_dist.name.version);
             }
         }
         for wheel in file.wheels {
-            if !is_yanked(wheel.file.yanked.as_ref()) {
+            if !is_yanked(wheel.file.yanked) {
                 valid_versions.insert(wheel.name.version);
             }
         }
