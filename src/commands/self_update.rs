@@ -1,15 +1,17 @@
 use anyhow::{anyhow, bail, Context};
 use std::env;
+use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 use crate::animate::{show_loading_indicator, AnimationSettings};
 use crate::cli::{Process, SelfUpdateOptions};
 use crate::cmd::{find_sibling, run};
-use crate::helpers::PathAsStr;
+use crate::helpers::{set_env_var, PathAsStr};
 use crate::pip::pip_freeze;
 use crate::uv::{system_environment, uv_freeze, PythonSpecifier};
 use owo_colors::OwoColorize;
 use regex::Regex;
+
 
 pub fn extract_version(
     freeze_output: &str,
@@ -113,7 +115,7 @@ pub async fn self_update_via_pip(
         "--upgrade",
         "uvenv",
     ];
-    env::set_var("PIP_BREAK_SYSTEM_PACKAGES", "1");
+    set_env_var("PIP_BREAK_SYSTEM_PACKAGES", "1");
 
     let mut to_track = vec!["uvenv"];
     let mut msg = String::from("uvenv");
@@ -173,7 +175,7 @@ pub async fn self_update_via_uv(
         "--upgrade",
         "uvenv",
     ];
-    env::set_var("UV_BREAK_SYSTEM_PACKAGES", "1");
+    set_env_var("UV_BREAK_SYSTEM_PACKAGES", "1");
 
     let mut to_track = vec!["uvenv"];
     let mut msg = String::from("uvenv");

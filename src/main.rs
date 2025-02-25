@@ -28,11 +28,11 @@ use crate::shell::SupportedShell;
 use std::process::exit;
 
 pub fn print_completions<G: Generator>(
-    gen: G,
+    generator: G,
     cmd: &mut Command,
 ) {
     // get_name returns a str, to_owned = to_string (but restriction::str_to_string)
-    generate(gen, cmd, cmd.get_name().to_owned(), &mut io::stdout());
+    generate(generator, cmd, cmd.get_name().to_owned(), &mut io::stdout());
 }
 
 pub async fn generate_completions_shell(generator: Shell) {

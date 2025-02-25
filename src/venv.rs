@@ -1,4 +1,4 @@
-use crate::helpers::PathToString;
+use crate::helpers::{set_env_var, PathToString};
 use crate::metadata::venv_path;
 use crate::pip::parse_requirement;
 use crate::uv::{uv, uv_venv};
@@ -61,7 +61,7 @@ pub async fn create_venv(
 /// activate a venv (from Path) by setting the `VIRTUAL_ENV` and loading the `PythonEnvironment`.
 pub async fn activate_venv(venv: &Path) -> anyhow::Result<PythonEnvironment> {
     let venv_str = venv.to_str().unwrap_or_default();
-    env::set_var("VIRTUAL_ENV", venv_str);
+    set_env_var("VIRTUAL_ENV", venv_str);
 
     uv_venv(None).with_context(|| format!("Could not properly activate venv '{venv_str}'!"))
 }
