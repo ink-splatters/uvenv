@@ -9,6 +9,8 @@ pub fn set_env_var<K: AsRef<OsStr>, V: AsRef<OsStr>>(
     key: K,
     value: V,
 ) {
+    // SAFETY: as specified in rustc_deprecated_safe_2024(audit_that):
+    // ✅ the environment access only happens in single-threaded code
     unsafe {
         env::set_var(key, value);
     }
