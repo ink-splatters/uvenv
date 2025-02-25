@@ -4,14 +4,15 @@ use std::ffi::OsStr;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
-
 /// Wrapper for unsafe `env::set_var`
-pub fn set_env_var<K: AsRef<OsStr>, V: AsRef<OsStr>>(key: K, value: V) {
+pub fn set_env_var<K: AsRef<OsStr>, V: AsRef<OsStr>>(
+    key: K,
+    value: V,
+) {
     unsafe {
         env::set_var(key, value);
     }
 }
-
 
 pub trait ResultToString<T, E> {
     #[expect(dead_code, reason = "Could still be useful sometimes")]

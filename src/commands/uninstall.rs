@@ -1,10 +1,10 @@
 use crate::pip::parse_requirement;
 use crate::uv::Helpers;
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use owo_colors::OwoColorize;
 
 use crate::cli::{Process, UninstallOptions};
-use crate::metadata::{venv_path, LoadMetadataConfig, Metadata};
+use crate::metadata::{LoadMetadataConfig, Metadata, venv_path};
 use crate::symlinks::{find_symlinks, remove_symlink, remove_symlinks};
 use crate::venv::{activate_venv, remove_venv};
 
@@ -27,8 +27,11 @@ pub async fn uninstall_package(
                 &requirement_name.green()
             )
         } else {
-            bail!("No virtualenv for '{}', stopping.\nUse '{}' to remove an executable with that name anyway.",
-                                        &requirement_name.green(), "--force".blue())
+            bail!(
+                "No virtualenv for '{}', stopping.\nUse '{}' to remove an executable with that name anyway.",
+                &requirement_name.green(),
+                "--force".blue()
+            )
         };
     }
 

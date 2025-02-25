@@ -2,7 +2,7 @@ use crate::cli::{Process, ReinstallAllOptions};
 use crate::commands::list::list_packages;
 use crate::commands::reinstall::reinstall;
 use crate::metadata::LoadMetadataConfig;
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 
 pub async fn reinstall_all(
     python: Option<&String>,

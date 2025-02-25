@@ -1,10 +1,9 @@
-use crate::helpers::{set_env_var, PathToString};
+use crate::helpers::{PathToString, set_env_var};
 use crate::metadata::venv_path;
 use crate::pip::parse_requirement;
 use crate::uv::{uv, uv_venv};
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use owo_colors::OwoColorize;
-use std::env;
 use std::path::{Path, PathBuf};
 use uv_pep508::{PackageName, Requirement};
 
@@ -18,8 +17,12 @@ pub async fn create_venv_raw(
     with_pip: bool,
 ) -> anyhow::Result<()> {
     if !force && venv_path.exists() {
-        bail!("'{}' is already installed.\nUse '{}' to update existing tools or pass '{}' to this command to ignore this message.",
-                    &venv_path.to_str().unwrap_or_default().green(), "uvenv upgrade".green(), "--force".blue())
+        bail!(
+            "'{}' is already installed.\nUse '{}' to update existing tools or pass '{}' to this command to ignore this message.",
+            &venv_path.to_str().unwrap_or_default().green(),
+            "uvenv upgrade".green(),
+            "--force".blue()
+        )
     }
 
     let mut args: Vec<&str> = vec!["venv", venv_path.to_str().unwrap_or_default()];

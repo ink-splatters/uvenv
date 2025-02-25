@@ -1,10 +1,10 @@
-use crate::animate::{show_loading_indicator, AnimationSettings};
+use crate::animate::{AnimationSettings, show_loading_indicator};
 use crate::cli::{InstallOptions, Process};
 
 use crate::metadata::Metadata;
 use crate::pip::parse_requirement;
 use crate::symlinks::{create_symlink, find_symlinks};
-use crate::uv::{uv, uv_get_installed_version, ExtractInfo, Helpers};
+use crate::uv::{ExtractInfo, Helpers, uv, uv_get_installed_version};
 use crate::venv::{activate_venv, create_venv, remove_venv};
 
 use core::fmt::Display;
@@ -12,7 +12,7 @@ use owo_colors::OwoColorize;
 use std::collections::BTreeMap;
 use uv_pep508::Requirement;
 
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use core::fmt::Write;
 use std::path::{Path, PathBuf};
 use uv_python::PythonEnvironment;

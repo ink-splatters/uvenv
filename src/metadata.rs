@@ -1,7 +1,7 @@
 use crate::commands::self_update::extract_version;
 use crate::pypi::get_latest_version;
 use crate::symlinks::check_symlink;
-use crate::uv::{uv_freeze, uv_get_installed_version, uv_venv, Helpers, PythonSpecifier};
+use crate::uv::{Helpers, PythonSpecifier, uv_freeze, uv_get_installed_version, uv_venv};
 use anyhow::anyhow;
 use core::cmp::Ordering;
 use core::fmt::Write;
@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
 use std::fs::remove_dir_all;
 use std::path::{Path, PathBuf};
-use tokio::fs::{create_dir_all, File};
+use tokio::fs::{File, create_dir_all};
 use tokio::io::AsyncReadExt;
 use tokio::io::AsyncWriteExt;
 use uv_pep440::{Version, VersionSpecifier};

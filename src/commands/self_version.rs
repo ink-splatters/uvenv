@@ -7,7 +7,7 @@ use uv_pep440::Version;
 use crate::cli::{Process, SelfVersionOptions};
 use crate::cmd::run_get_output;
 use crate::commands::self_update::{find_python, get_package_versions_pip};
-use crate::helpers::{flatten_option_ref, PathToString};
+use crate::helpers::{PathToString, flatten_option_ref};
 use crate::pypi::get_latest_version;
 
 async fn get_latest_versions(package_names: Vec<&str>) -> BTreeMap<&str, Option<Version>> {

@@ -2,7 +2,7 @@ use crate::cli::{Process, UpgradeAllOptions};
 use crate::commands::list::list_packages;
 use crate::commands::upgrade::upgrade_package;
 use crate::metadata::LoadMetadataConfig;
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 
 pub async fn upgrade_all(
     force: bool,

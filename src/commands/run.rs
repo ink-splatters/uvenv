@@ -1,4 +1,4 @@
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use owo_colors::OwoColorize;
 use std::path::{Path, PathBuf};
 use uv_pep508::Requirement;
@@ -46,11 +46,12 @@ async fn find_executable_raw(
                 writeln!(related, "\t- {} | `{}` ", option.green(), code.blue())?;
             }
 
-            bail!("'{}' executable not found for install spec '{}'.\nMultiple related scripts were found:\n{}",
-                        requirement.name.to_string().green(),
-                        package_spec.green(),
-                        related,
-                )
+            bail!(
+                "'{}' executable not found for install spec '{}'.\nMultiple related scripts were found:\n{}",
+                requirement.name.to_string().green(),
+                package_spec.green(),
+                related,
+            )
         },
     }
 }

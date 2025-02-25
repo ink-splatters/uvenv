@@ -1,9 +1,9 @@
 use crate::metadata::LoadMetadataConfig;
 use crate::{
-    animate::{show_loading_indicator, AnimationSettings},
+    animate::{AnimationSettings, show_loading_indicator},
     cli::{InjectOptions, Process},
     metadata::Metadata,
-    uv::{uv, Helpers},
+    uv::{Helpers, uv},
     venv::setup_environ_from_requirement,
 };
 use anyhow::Context;

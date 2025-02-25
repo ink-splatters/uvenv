@@ -1,4 +1,4 @@
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use owo_colors::OwoColorize;
 
 use crate::commands::create::create;
@@ -6,7 +6,7 @@ use crate::metadata::LoadMetadataConfig;
 use crate::{
     cli::{Process, ReinstallOptions},
     commands::{install::install_package, uninstall::uninstall_package},
-    metadata::{venv_path, Metadata},
+    metadata::{Metadata, venv_path},
     pip::parse_requirement,
     uv::ExtractInfo,
 };
@@ -25,7 +25,8 @@ pub async fn reinstall(
     let venv_dir = venv_path(&requirement_name);
 
     if !venv_dir.exists() && !force {
-        bail!("'{}' was not previously installed. Please run 'uvenv install {}' or pass `--force` instead.",
+        bail!(
+            "'{}' was not previously installed. Please run 'uvenv install {}' or pass `--force` instead.",
             &requirement_name,
             &install_spec,
         );

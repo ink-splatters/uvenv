@@ -1,4 +1,4 @@
-use anyhow::{anyhow, bail, Context};
+use anyhow::{Context, anyhow, bail};
 use std::path::{Path, PathBuf};
 
 use uv_pep508::{PackageName, Requirement};

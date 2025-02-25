@@ -47,7 +47,9 @@ pub async fn run_get_output<S1: AsRef<OsStr>, S2: AsRef<OsStr>>(
     match command_result {
         Ok(result) => match result.status.code() {
             Some(0) => Ok(String::from_utf8(result.stdout).unwrap_or_default()),
-            Some(_) | None => Err(anyhow!(String::from_utf8(result.stderr).unwrap_or_default())),
+            Some(_) | None => Err(anyhow!(
+                String::from_utf8(result.stderr).unwrap_or_default()
+            )),
         },
         Err(result_err) => Err(result_err.into()),
     }

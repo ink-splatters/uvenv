@@ -4,7 +4,7 @@ use owo_colors::OwoColorize;
 
 use crate::cli::{ListOptions, Process};
 use crate::commands::self_version::{is_latest, uvenv_version};
-use crate::metadata::{get_venv_dir, LoadMetadataConfig, Metadata};
+use crate::metadata::{LoadMetadataConfig, Metadata, get_venv_dir};
 use crate::promises::handle_promises;
 use crate::pypi::get_latest_version;
 use crate::uv::uv_search_python;

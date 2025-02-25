@@ -1,4 +1,4 @@
-use crate::animate::{show_loading_indicator, AnimationSettings};
+use crate::animate::{AnimationSettings, show_loading_indicator};
 use crate::cmd::{run, run_get_output};
 use anyhow::bail;
 use core::cmp::Ordering;

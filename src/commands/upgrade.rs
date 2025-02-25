@@ -9,10 +9,10 @@ use crate::helpers::StringExt;
 use crate::metadata::LoadMetadataConfig;
 use crate::venv::setup_environ_from_requirement;
 use crate::{
-    animate::{show_loading_indicator, AnimationSettings},
+    animate::{AnimationSettings, show_loading_indicator},
     cli::{Process, UpgradeOptions},
     metadata::Metadata,
-    uv::{uv, uv_get_installed_version, ExtractInfo, Helpers},
+    uv::{ExtractInfo, Helpers, uv, uv_get_installed_version},
 };
 
 pub async fn update_metadata(

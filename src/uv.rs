@@ -1,5 +1,5 @@
 use crate::cmd::{find_sibling, run, run_print_output};
-use anyhow::{anyhow, bail, Context};
+use anyhow::{Context, anyhow, bail};
 use core::fmt::Write;
 use directories::ProjectDirs;
 use itertools::Itertools;

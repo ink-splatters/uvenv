@@ -1,5 +1,5 @@
 use crate::cli::{Process, SelfChangelogOptions};
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use owo_colors::OwoColorize;
 use regex::Regex;
 use std::collections::BTreeMap;

@@ -18,7 +18,7 @@ mod shell;
 use std::io;
 
 use clap::{Command, CommandFactory, Parser};
-use clap_complete::{generate, Generator, Shell};
+use clap_complete::{Generator, Shell, generate};
 
 use crate::cli::{Args, Process};
 use crate::commands::activate::generate_activate;

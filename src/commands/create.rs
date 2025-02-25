@@ -1,5 +1,5 @@
 use crate::cli::{CreateOptions, Process};
-use crate::metadata::{get_venv_dir, Metadata};
+use crate::metadata::{Metadata, get_venv_dir};
 use crate::venv::{activate_venv, create_venv_raw};
 use anyhow::Context;
 use owo_colors::OwoColorize;

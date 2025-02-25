@@ -1,6 +1,6 @@
 use crate::pip::parse_requirement;
 use crate::uv::uv_cache;
-use rkyv::{deserialize, Archive, Archived, Deserialize};
+use rkyv::{Archive, Archived, Deserialize, deserialize};
 use uv_pep440::{Version, VersionSpecifier};
 use uv_pep508::{PackageName, Requirement};
 use uv_pypi_types::Yanked;

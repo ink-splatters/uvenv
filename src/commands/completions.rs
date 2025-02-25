@@ -1,7 +1,7 @@
 use crate::cli::{CompletionsOptions, Process};
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 
-use crate::shell::{run_if_supported_shell_else_warn, SupportedShell};
+use crate::shell::{SupportedShell, run_if_supported_shell_else_warn};
 use owo_colors::OwoColorize;
 
 pub async fn completions(install: bool) -> anyhow::Result<i32> {

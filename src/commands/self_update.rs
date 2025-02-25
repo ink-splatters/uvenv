@@ -1,17 +1,14 @@
-use anyhow::{anyhow, bail, Context};
-use std::env;
-use std::ffi::OsStr;
+use anyhow::{Context, anyhow, bail};
 use std::path::{Path, PathBuf};
 
-use crate::animate::{show_loading_indicator, AnimationSettings};
+use crate::animate::{AnimationSettings, show_loading_indicator};
 use crate::cli::{Process, SelfUpdateOptions};
 use crate::cmd::{find_sibling, run};
-use crate::helpers::{set_env_var, PathAsStr};
+use crate::helpers::{PathAsStr, set_env_var};
 use crate::pip::pip_freeze;
-use crate::uv::{system_environment, uv_freeze, PythonSpecifier};
+use crate::uv::{PythonSpecifier, system_environment, uv_freeze};
 use owo_colors::OwoColorize;
 use regex::Regex;
-
 
 pub fn extract_version(
     freeze_output: &str,

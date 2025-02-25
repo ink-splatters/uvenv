@@ -2,7 +2,7 @@ use crate::commands::ensurepath::{append, now};
 use crate::helpers::Touch;
 use crate::macros::iterable_enum_macro::iterable_enum;
 use crate::metadata::get_home_dir;
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use core::fmt::{Display, Formatter, Write};
 use owo_colors::OwoColorize;
 use std::env;

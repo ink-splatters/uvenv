@@ -2,7 +2,7 @@ use crate::cli::{Process, UninstallAllOptions};
 use crate::commands::list::list_packages;
 use crate::commands::uninstall::uninstall_package;
 use crate::metadata::LoadMetadataConfig;
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 
 pub async fn uninstall_all(
     force: bool,

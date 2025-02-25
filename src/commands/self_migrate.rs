@@ -1,7 +1,7 @@
 use crate::cli::{Process, SelfMigrateOptions};
 use crate::commands::reinstall_all::reinstall_all;
 use crate::metadata::get_work_dir;
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use owo_colors::OwoColorize;
 use tokio::fs::rename;
 

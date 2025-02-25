@@ -1,5 +1,5 @@
 use crate::cli::{ActivateOptions, Process};
-use crate::shell::{run_if_supported_shell_else_warn, SupportedShell};
+use crate::shell::{SupportedShell, run_if_supported_shell_else_warn};
 use owo_colors::OwoColorize;
 
 pub async fn generate_activate() -> &'static str {

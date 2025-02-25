@@ -1,4 +1,4 @@
-use crate::animate::{show_loading_indicator, AnimationSettings};
+use crate::animate::{AnimationSettings, show_loading_indicator};
 use crate::cli::{Process, UnInjectOptions};
 use crate::metadata::{LoadMetadataConfig, Metadata};
 use crate::venv::setup_environ_from_requirement;
@@ -6,7 +6,7 @@ use anyhow::anyhow;
 use itertools::Itertools;
 use owo_colors::OwoColorize;
 
-use crate::uv::{uv, Helpers};
+use crate::uv::{Helpers, uv};
 
 pub async fn eject_package(
     from: &str,
