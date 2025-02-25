@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## 3.6.3 (2025-02-25)
+
+### Updates
+
+* bump to uv 0.6.3
+* bump to rust 2024 edition (1.85)
+
 ## 3.6.2 (2025-02-14)
 
 ### Updates
