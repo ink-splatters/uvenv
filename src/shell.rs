@@ -134,7 +134,8 @@ pub async fn add_to_rcfile(
         .with_context(|| format!("Trying to append text to your {filename}"))
 }
 
-/// Run a callback function if the shell is supported, or show a message saying the shell is unsupported.
+/// Run a callback function if the shell is supported,
+/// or show a message saying the shell is unsupported.
 pub fn run_if_supported_shell_else_warn<T, Y: Fn(&SupportedShell) -> Option<T>>(
     if_supported: Y
 ) -> Option<T> {
@@ -142,6 +143,28 @@ pub fn run_if_supported_shell_else_warn<T, Y: Fn(&SupportedShell) -> Option<T>>(
 
     if shell.is_supported() {
         if_supported(&shell)
+    } else {
+        eprintln!(
+            "Unsupported shell '{}'. Currently, these shells are supported: {}",
+            shell.name().blue(),
+            SupportedShell::list_options_formatted(),
+        );
+        None
+    }
+}
+
+/// Run an async callback function if the shell is supported,
+/// or show a message saying the shell is unsupported.
+pub async fn run_if_supported_shell_else_warn_async<
+    T,
+    Y: AsyncFn(&'_ SupportedShell) -> Option<T>,
+>(
+    if_supported: Y
+) -> Option<T> {
+    let shell = SupportedShell::detect();
+
+    if shell.is_supported() {
+        if_supported(&shell).await
     } else {
         eprintln!(
             "Unsupported shell '{}'. Currently, these shells are supported: {}",

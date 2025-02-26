@@ -5,7 +5,7 @@ use crate::commands::ensurepath::ensure_path;
 use crate::commands::self_link::self_link;
 use crate::helpers::fmt_error;
 use crate::metadata::{get_work_dir, load_generic_msgpack, store_generic_msgpack};
-use crate::shell::{SupportedShell, run_if_supported_shell_else_warn};
+use crate::shell::{SupportedShell, run_if_supported_shell_else_warn_async};
 use anyhow::bail;
 use owo_colors::OwoColorize;
 use serde::{Deserialize, Serialize};
@@ -117,29 +117,18 @@ pub async fn setup_for_shell(
 
 impl Process for SetupOptions {
     async fn process(self) -> anyhow::Result<i32> {
-        let result = run_if_supported_shell_else_warn(move |_| {
-            // some logic here
-            let result = setup_for_shell(
+        let result: Option<i32> = run_if_supported_shell_else_warn_async(async |_| {
+            setup_for_shell(
                 !self.skip_ensurepath,
                 !self.skip_completions,
                 !self.skip_activate,
                 self.force,
-            );
+            )
+            .await
+            .ok()
+        })
+        .await;
 
-            // async is not possible in this block,
-            // creating a run_if_bash_else_warn_async is non-trivial
-            Some(result) // so just return a promise
-        });
-
-        match result {
-            Some(promise) => {
-                // finally, we can await
-                promise.await
-            },
-            None => {
-                // unsupported shell ->
-                Ok(126)
-            },
-        }
+        Ok(result.unwrap_or(126))
     }
 }
