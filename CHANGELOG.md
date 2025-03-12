@@ -2,6 +2,17 @@
 
 <!--next-version-placeholder-->
 
+## 3.6.4 (2025-03-12)
+
+### Updates
+
+* bump to uv 0.6.6
+* bump to rust 2024 edition (1.85)
+
+### Internals
+
+* use Rust 2024's async closures to create `run_if_supported_shell_else_warn_async`
+
 ## 3.6.3 (2025-02-25)
 
 ### Updates
