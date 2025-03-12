@@ -2,12 +2,19 @@
 
 <!--next-version-placeholder-->
 
+## 3.6.5 (2025-03-12)
+
+### Build
+
+* Better darwin support (don't suggest installing uvx 1.0)
+* Change build script so `macos` can cross-compile all wheels
+
+
 ## 3.6.4 (2025-03-12)
 
 ### Updates
 
 * bump to uv 0.6.6
-* bump to rust 2024 edition (1.85)
 
 ### Internals
 
