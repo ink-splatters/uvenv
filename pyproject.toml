@@ -2,7 +2,7 @@
 requires = [
     "maturin>=1.5,<2.0",
     # Add a fake dependency for unsupported platforms:
-    "please-use-uvx-v1-on-this-platform; sys_platform != 'linux' or (platform_machine != 'x86_64' and platform_machine != 'aarch64')",
+    "please-use-uvx-v1-on-this-platform; (sys_platform != 'linux' and sys_platform != 'darwin') or (platform_machine != 'x86_64' and platform_machine != 'aarch64')",
 ]
 build-backend = "maturin"
 
