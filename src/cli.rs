@@ -409,6 +409,9 @@ pub struct SelfChangelogOptions;
 pub struct SelfMigrateOptions;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
+pub struct SelfInfoOptions;
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
 pub struct SelfVersionOptions;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Subcommand)]
@@ -425,7 +428,10 @@ pub enum SelfCommands {
     #[clap(about = "Migrate installed environments and commands from `uvx` to `uvenv`")]
     Migrate(SelfMigrateOptions),
 
-    #[clap(about = "Show version info about uvenv and it's dependencies")]
+    #[clap(about = "Show info about uvenv and it's dependencies")]
+    Info(SelfInfoOptions),
+
+    #[clap(about = "(deprecated in favor of `self info`)")]
     Version(SelfVersionOptions),
 }
 
@@ -436,6 +442,7 @@ impl Process for SelfCommands {
             Self::Link(opts) => opts.process().await,
             Self::Changelog(opts) => opts.process().await,
             Self::Migrate(opts) => opts.process().await,
+            Self::Info(opts) => opts.process().await,
             Self::Version(opts) => opts.process().await,
         }
     }
