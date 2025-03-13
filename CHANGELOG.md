@@ -2,13 +2,20 @@
 
 <!--next-version-placeholder-->
 
+## 3.6.5 (2025-03-13)
+
+### Features
+
+* replace `self version` with more verbose `self info`
+* prepare for `snap` installation by adding a snapcraft config and build script, plus a `feature` for snap-specific HOME
+  path logic
+
 ## 3.6.5 (2025-03-12)
 
 ### Build
 
 * Better darwin support (don't suggest installing uvx 1.0)
 * Change build script so `macos` can cross-compile all wheels
-
 
 ## 3.6.4 (2025-03-12)
 
