@@ -18,7 +18,7 @@ pub mod self_info;
 pub mod self_link;
 pub mod self_migrate;
 pub mod self_update;
-#[deprecated(since="3.7.0")]
+#[deprecated(since = "3.7.0")]
 pub mod self_version;
 pub mod setup;
 pub mod uninject;

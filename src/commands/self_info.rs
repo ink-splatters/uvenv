@@ -1,13 +1,13 @@
-use std::collections::BTreeMap;
-use std::env;
 use futures::future;
 use owo_colors::OwoColorize;
+use std::collections::BTreeMap;
+use std::env;
 use uv_pep440::Version;
 
 use crate::cli::{Process, SelfInfoOptions};
 use crate::cmd::run_get_output;
 use crate::commands::self_update::{find_python, get_package_versions_pip};
-use crate::helpers::{PathToString, flatten_option_ref, PathAsStr};
+use crate::helpers::{PathAsStr, PathToString, flatten_option_ref};
 use crate::metadata::{get_bin_dir, get_work_dir};
 use crate::pypi::get_latest_version;
 use crate::uv::get_uv_binary;
@@ -99,16 +99,16 @@ pub async fn self_info() -> anyhow::Result<i32> {
     if cfg!(feature = "snap") {
         eprintln!("Installation Method: snap");
     }
-    
+
     eprintln!("{}", "Paths:".blue());
-    
+
     let me = &env::current_exe().unwrap_or_default();
     let uv_path = get_uv_binary().await;
     eprintln!("uvenv: {}", me.as_str());
     eprintln!("uv: {}", uv_path.as_str());
     eprintln!("Bin Dir: {}", get_bin_dir().as_str());
     eprintln!("Work Dir: {}", get_work_dir().as_str());
-    
+
     Ok(0)
 }
 

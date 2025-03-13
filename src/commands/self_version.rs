@@ -1,6 +1,6 @@
-use owo_colors::OwoColorize;
 use crate::cli::{Process, SelfVersionOptions};
 use crate::commands::self_info::self_info;
+use owo_colors::OwoColorize;
 
 impl Process for SelfVersionOptions {
     async fn process(self) -> anyhow::Result<i32> {
