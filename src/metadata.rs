@@ -35,7 +35,14 @@ pub fn get_home_dir() -> PathBuf {
         let _ = dbg!(remove_dir_all(&test_dir));
         let _ = dbg!(std::fs::create_dir_all(&test_dir));
         test_dir
-    } else {
+    }
+    else if cfg!(feature = "snap") {
+        // $HOME is now ~/snap/uvenv/<revision>
+        // use `SNAP_REAL_HOME` instead.
+        let home_str = std::env::var("SNAP_REAL_HOME").expect("Snap should have $SNAP_REAL_HOME set!");
+        PathBuf::from(home_str)
+    }
+    else {
         home::home_dir().expect("Failed to get home directory")
     }
 }

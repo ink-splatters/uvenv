@@ -8,6 +8,9 @@ keywords = ["Python", "uv", "pip", "packaging"]
 repository = "https://github.com/robinvandernoord/uvenv"
 license = "MIT"
 
+[features]
+snap = []
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [profile.release]
