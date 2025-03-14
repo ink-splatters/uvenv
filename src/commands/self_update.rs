@@ -234,6 +234,13 @@ pub async fn self_update(
     with_uv: bool,
     with_patchelf: bool,
 ) -> anyhow::Result<i32> {
+    if cfg!(feature = "snap") {
+        bail!(
+            "`self update` not available if installed through snap. Use `{}` instead.",
+            "snap refresh uvenv".blue()
+        )
+    }
+
     // note: uv doesn't work for --user (only --system, which is not allowed on ubuntu 24.04)
     // so just using pip is most stable (although a bit slower):
     self_update_via_pip(with_uv, with_patchelf).await
