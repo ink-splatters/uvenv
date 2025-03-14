@@ -5,11 +5,10 @@ Inspired by:
 - [pipx](https://github.com/pypa/pipx)
 - [uv](https://github.com/astral-sh/uv)
 
-> **Note:** The tool previously named `uvx` is now `uvenv` due to a naming collision with a new `uv` command. The new name
-> better reflects its purpose, combining `uv` with `venv`.  
-> You can run `uvenv self migrate` to move your environments and installed commands from `uvx` to `uvenv`.
-
 ## Installation
+
+> **New**: `uvenv` is now also installable via the snap store.  
+> The `pip` method is still recommended, but if you want to use `snap`, please check out [docs/snap.md](./docs/snap.md)!
 
 1. Install via pip (or alternatives):
     ```bash
@@ -40,6 +39,12 @@ uvenv
 ```
 
 Run `uvenv` without any arguments to see all possible subcommands.
+
+## Migration from `uvx`
+> **Note:** The tool previously named `uvx` is now `uvenv` due to a naming collision with a new `uv` command. The new name
+> better reflects its purpose, combining `uv` with `venv`.  
+> You can run `uvenv self migrate` to move your environments and installed commands from `uvx` to `uvenv`.
+
 
 ## Platform Considerations
 
@@ -81,10 +86,12 @@ Run `uvenv` without any arguments to see all possible subcommands.
 For additional details on building and distribution, refer to [maturin](https://www.maturin.rs/distribution)
 documentation.
 
+
 ## License
 
 `uvenv` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
 
 ## Changelog
+
 
 See `CHANGELOG.md` [on GitHub](https://github.com/robinvandernoord/uvenv/blob/master/CHANGELOG.md)
