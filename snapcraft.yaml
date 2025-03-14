@@ -7,35 +7,12 @@ description: A simple command-line tool for managing virtual environments writte
 grade: stable
 confinement: strict
 
-plugs:
-  # allow access to ~/.local:
-#  write-dot-local-uvenv:
-#    interface: personal-files
-#    write:
-#      - $HOME/.local/uvenv
-#  write-dot-local-bin:
-#    interface: personal-files
-#    write:
-#      - $HOME/.local/bin
-  read-dot-local:
-    interface: personal-files
-    read:
-      - $HOME/.local
-  write-dot-local:
-    interface: personal-files
-    write:
-      - $HOME/.local
-
 apps:
   uvenv:
     command: usr/bin/uvenv
     extensions: []
     plugs:
       - network
-      # - write-dot-local-bin
-      # - write-dot-local-uvenv
-      - read-dot-local
-      - write-dot-local
 
 parts:
   version:
@@ -56,15 +33,4 @@ parts:
       set -eu
       install -D ./uv $SNAPCRAFT_PART_INSTALL/usr/bin/uv
       install -D ./uvenv $SNAPCRAFT_PART_INSTALL/usr/bin/uvenv
-#    organize:
-#      target/release/uvenv: usr/bin/uvenv
 
-
-
-#  link-uv:
-#    plugin: dump
-#    source: venv/bin
-#    override-build: |
-#      set -eu
-#      # Copy the uv binary from the virtual environment
-#      install -D ./uv $SNAPCRAFT_PART_INSTALL/usr/bin/uv

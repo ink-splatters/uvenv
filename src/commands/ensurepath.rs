@@ -1,4 +1,4 @@
-use anyhow::Context;
+use anyhow::{Context, bail};
 use std::path::PathBuf;
 
 use chrono::Local;
@@ -32,15 +32,24 @@ pub async fn append(
     Ok(())
 }
 
+pub fn check_in_path(dir: &str) -> bool {
+    let path = std::env::var("PATH").unwrap_or_default();
+
+    path.split(':').any(|x| x == dir)
+}
+
+pub const SNAP_ENSUREPATH: &str = "eval \"$(uvenv --generate=bash ensurepath)\"";
+
 pub async fn ensure_path(force: bool) -> anyhow::Result<i32> {
     let bin_path = ensure_bin_dir().await;
     let bin_dir = bin_path.as_str();
 
-    let path = std::env::var("PATH").unwrap_or_default();
     let shell = SupportedShell::detect();
 
-    if !force && path.split(':').any(|x| x == bin_dir) {
-        let rcfile = shell.rc_file().unwrap_or("rc");
+    let already_in_path = check_in_path(bin_dir);
+    let rcfile = shell.rc_file().unwrap_or("rc");
+
+    if !force && already_in_path {
         eprintln!(
             "{}: {} is already added to your path. Use '{}' to add it to your {} file anyway.",
             "Warning".yellow(),
@@ -52,6 +61,15 @@ pub async fn ensure_path(force: bool) -> anyhow::Result<i32> {
         // still exit with code > 0
         Ok(2) // missing -f
     } else {
+        if cfg!(feature = "snap") {
+            bail!(
+                "{} snap-installed {} cannot write directly to `{}`. You can add the following line to make this feature work:\n\n{SNAP_ENSUREPATH}\n",
+                "Warning:".yellow(),
+                "`uvenv`".blue(),
+                rcfile.blue()
+            );
+        }
+
         shell.add_to_path(bin_dir, true).await?;
 
         eprintln!(

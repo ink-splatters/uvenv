@@ -2,7 +2,7 @@ use crate::commands::ensurepath::{append, now};
 use crate::helpers::Touch;
 use crate::macros::iterable_enum_macro::iterable_enum;
 use crate::metadata::get_home_dir;
-use anyhow::{Context, anyhow};
+use anyhow::{Context, anyhow, bail};
 use core::fmt::{Display, Formatter, Write};
 use owo_colors::OwoColorize;
 use std::env;
@@ -116,6 +116,15 @@ pub async fn add_to_rcfile(
     with_comment: bool,
     filename: &str,
 ) -> anyhow::Result<()> {
+    if cfg!(feature = "snap") {
+        bail!(
+            "{} snap-installed {} cannot write directly to `{}`. You can add the following line to make this feature work:\n\n{text}\n",
+            "Warning:".yellow(),
+            "`uvenv`".blue(),
+            filename.blue()
+        );
+    }
+
     let path = get_home_dir().join(filename);
     path.touch()?; // ensure it exists
 

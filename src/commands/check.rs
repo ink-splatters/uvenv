@@ -4,11 +4,15 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use crate::cli::{CheckOptions, Process};
+use crate::commands::ensurepath::{SNAP_ENSUREPATH, check_in_path};
 use crate::commands::list::list_packages;
-use crate::metadata::LoadMetadataConfig;
+use crate::helpers::PathAsStr;
+use crate::metadata::{LoadMetadataConfig, get_bin_dir};
+use crate::shell::SupportedShell;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Serialize, Deserialize)]
 struct Issues<'metadata> {
+    path_correct: bool,
     #[serde(borrow)]
     outdated: Vec<&'metadata str>,
     #[serde(borrow)]
@@ -20,9 +24,32 @@ struct Issues<'metadata> {
 impl Issues<'_> {
     pub const fn new() -> Self {
         Self {
+            path_correct: false,
             outdated: Vec::new(),
             broken: BTreeMap::new(),
             scripts: BTreeMap::new(),
+        }
+    }
+
+    fn check_path(&mut self) {
+        let bin_dir = get_bin_dir();
+
+        if cfg!(feature = "snap") {
+            let shell = SupportedShell::detect();
+
+            let rcfile = shell.rc_file().unwrap_or("rc");
+            eprintln!(
+                "{}: snap-installed `{}` cannot access $PATH. \
+            To ensure '{}' exists in your PATH, you can add `{}` to your {} file.",
+                "Warning".yellow(),
+                "uvenv".blue(),
+                bin_dir.as_str().blue(),
+                SNAP_ENSUREPATH.green(),
+                rcfile
+            );
+            self.path_correct = true;
+        } else {
+            self.path_correct = check_in_path(bin_dir.as_str());
         }
     }
 
@@ -38,7 +65,16 @@ impl Issues<'_> {
     }
 
     pub fn count(&self) -> i32 {
-        self.count_outdated() + self.count_scripts()
+        let mut count = 0;
+
+        count += self.count_outdated();
+        count += self.count_scripts();
+
+        if !self.path_correct {
+            count += 1;
+        }
+
+        count
     }
 
     pub fn print_json(&self) -> anyhow::Result<i32> {
@@ -58,6 +94,19 @@ impl Issues<'_> {
         }
 
         println!("{}", "🚨 Issues Overview:".bold().underline());
+
+        if !self.path_correct {
+            let bin_dir = get_bin_dir();
+            println!(
+                "{}",
+                format!("  - {} is not in $PATH", bin_dir.as_str()).red()
+            );
+
+            println!(
+                "{}",
+                "💡 Tip: you can use `uvenv ensurepath` to fix this.".blue()
+            );
+        }
 
         // Display outdated issues
         if !self.outdated.is_empty() {
@@ -122,6 +171,8 @@ impl Process for CheckOptions {
         // collect issues:
 
         let mut issues = Issues::new();
+
+        issues.check_path();
 
         for metadata in &items {
             let invalid_scripts = metadata.invalid_scripts();
