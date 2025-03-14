@@ -2,13 +2,23 @@
 
 <!--next-version-placeholder-->
 
-## 3.6.5 (2025-03-13)
+## 3.7.1 (2025-03-14)
+
+### Fixes
+
+* add aliases like `ls`, `rm` for lazy people
+
+### Documentation
+
+* explained more about the snap version, with caveats and tips
+
+## 3.7.0 (2025-03-13)
 
 ### Features
 
 * replace `self version` with more verbose `self info`
-* prepare for `snap` installation by adding a snapcraft config and build script, plus a `feature` for snap-specific HOME
-  path logic
+* First release of `uvenv` on `snap` - `snap install uvenv`, 
+  with some features (self-update, rcfile editing) disabled because of snapcraft's strict permission system.
 
 ## 3.6.5 (2025-03-12)
 
