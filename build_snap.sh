@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-rm *.snap
+rm -f *.snap
 
 # special build
 cargo build --release --features snap
