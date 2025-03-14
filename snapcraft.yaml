@@ -1,6 +1,7 @@
 name: uvenv
 base: core24
 adopt-info: version
+# note: current metadata is managed at https://snapcraft.io/uvenv/listing
 summary: "uvenv: pipx for uv (🦀)"
 description: |
   uvenv is a simple command-line tool for managing virtual environments, written in Rust. 
