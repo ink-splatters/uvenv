@@ -306,19 +306,19 @@ pub struct CompletionsOptions {
 pub enum Commands {
     #[clap(about = "Setup additional (bash-specific) functionality.")]
     Setup(SetupOptions),
-    #[clap(about = "List packages and apps installed with uvenv.")]
+    #[clap(aliases=["ls"], about = "List packages and apps installed with uvenv.")]
     List(ListOptions),
-    #[clap(about = "Install a package (by pip name).")]
+    #[clap(aliases=["i"], about = "Install a package (by pip name).")]
     Install(InstallOptions),
-    #[clap(about = "Create a new (empty) virtualenv")]
+    #[clap(aliases=["c"], about = "Create a new (empty) virtualenv")]
     Create(CreateOptions),
     #[clap(about = "Activate a uvenv-managed virtualenv (bash only)")]
     Activate(ActivateOptions),
-    #[clap(about = "Upgrade a package.")]
+    #[clap(aliases=["u"], about = "Upgrade a package.")]
     Upgrade(UpgradeOptions),
     #[clap(about = "Upgrade all uvenv-installed packages.")]
     UpgradeAll(UpgradeAllOptions),
-    #[clap(aliases = &["delete", "remove"], about = "Uninstall a package (by pip name).")]
+    #[clap(aliases = &["delete", "remove", "rm"], about = "Uninstall a package (by pip name).")]
     Uninstall(UninstallOptions),
     #[clap(about = "Uninstall all uvenv-installed packages.")]
     UninstallAll(UninstallAllOptions),
@@ -328,14 +328,14 @@ pub enum Commands {
     Reinstall(ReinstallOptions),
     #[clap(about = "Reinstall all uvenv-installed packages.")]
     ReinstallAll(ReinstallAllOptions),
-    #[clap(about = "Install additional packages to a virtual environment managed by uvenv.")]
+    #[clap(aliases=["ij"], about = "Install additional packages to a virtual environment managed by uvenv.")]
     Inject(InjectOptions),
-    #[clap(aliases = &["eject"], about="Uninstall additional packages from a virtual environment managed by uvenv. (alias: `eject`)")]
+    #[clap(aliases = &["eject", "ej"], about="Uninstall additional packages from a virtual environment managed by uvenv. (alias: `eject`)")]
     Uninject(UnInjectOptions),
     #[clap(about = "Check for possible issues and updates.")]
     Check(CheckOptions),
 
-    #[clap(about = "Run a package in a temporary virtual environment.")]
+    #[clap(aliases=["x"], about = "Run a package in a temporary virtual environment.")]
     Run(RunOptions),
     #[clap(about = "Run 'uv' in the right venv.")]
     Runuv(RunuvOptions),
