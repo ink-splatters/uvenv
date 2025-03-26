@@ -12,7 +12,7 @@ use uv_client::{
     OwnedArchive, RegistryClient, RegistryClientBuilder, SimpleMetadata, SimpleMetadatum,
     VersionFiles,
 };
-use uv_distribution_types::{IndexCapabilities, IndexUrl};
+use uv_distribution_types::{IndexCapabilities, IndexMetadataRef};
 
 /// Shadow `RegistryClient` to hide new complexity of .simple
 struct SimplePypi(RegistryClient);
@@ -22,7 +22,7 @@ impl SimplePypi {
     async fn lookup<'index>(
         &'index self,
         package_name: &PackageName,
-    ) -> anyhow::Result<Vec<(&'index IndexUrl, OwnedArchive<SimpleMetadata>)>> {
+    ) -> anyhow::Result<Vec<(IndexMetadataRef<'index>, OwnedArchive<SimpleMetadata>)>> {
         // 1 permit is sufficient
         let download_concurrency = Semaphore::new(1);
 
