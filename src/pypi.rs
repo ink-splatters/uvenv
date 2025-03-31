@@ -9,26 +9,26 @@ use rkyv::api::high::HighDeserializer;
 use std::collections::HashSet;
 use tokio::sync::Semaphore;
 use uv_client::{
-    OwnedArchive, RegistryClient, RegistryClientBuilder, SimpleMetadata, SimpleMetadatum,
-    VersionFiles,
+    MetadataFormat, OwnedArchive, RegistryClient, RegistryClientBuilder, SimpleMetadata,
+    SimpleMetadatum, VersionFiles,
 };
-use uv_distribution_types::{IndexCapabilities, IndexMetadataRef};
+use uv_distribution_types::IndexCapabilities;
 
 /// Shadow `RegistryClient` to hide new complexity of .simple
 struct SimplePypi(RegistryClient);
 
 impl SimplePypi {
-    /// Use RegistryClient.simple to lookup a package on default package index
-    async fn lookup<'index>(
-        &'index self,
+    /// Use `RegistryClient.package_metadata` to lookup a package on default package index
+    async fn lookup(
+        &self,
         package_name: &PackageName,
-    ) -> anyhow::Result<Vec<(IndexMetadataRef<'index>, OwnedArchive<SimpleMetadata>)>> {
+    ) -> anyhow::Result<Vec<OwnedArchive<SimpleMetadata>>> {
         // 1 permit is sufficient
         let download_concurrency = Semaphore::new(1);
 
-        let res = self
+        let response = self
             .0
-            .simple(
+            .package_metadata(
                 package_name,
                 None,
                 &IndexCapabilities::default(),
@@ -36,7 +36,15 @@ impl SimplePypi {
             )
             .await?;
 
-        Ok(res)
+        let mapped: Vec<_> = response
+            .into_iter()
+            .filter_map(|(_url, metadata)| match metadata {
+                MetadataFormat::Simple(data) => Some(data),
+                MetadataFormat::Flat(_) => None,
+            })
+            .collect();
+
+        Ok(mapped)
     }
 }
 
@@ -119,7 +127,7 @@ pub async fn get_versions_for_packagename(
         Ok(data) => data,
     };
 
-    if let Some((_, metadata)) = data.iter().next_back() {
+    if let Some(metadata) = data.iter().next_back() {
         let not_yanked = find_non_yanked_versions(metadata);
 
         versions = metadata
@@ -159,7 +167,7 @@ pub async fn get_pypi_data_for_packagename(package_name: &PackageName) -> Option
 
     let data = client.lookup(package_name).await.ok()?;
 
-    if let Some((_, metadata)) = data.iter().next_back() {
+    if let Some(metadata) = data.iter().next_back() {
         if let Some(latest) = metadata.iter().next_back() {
             return deserialize_metadata(latest);
         }
