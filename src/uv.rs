@@ -159,7 +159,7 @@ pub fn uv_get_installed_version(
         if let Some(result) = pkgs.get_packages(package_name).into_iter().next() {
             return Ok(result.version().to_string());
         }
-    };
+    }
 
     bail!(
         "No version found for '{}'.",

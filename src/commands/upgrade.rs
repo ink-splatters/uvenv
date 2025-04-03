@@ -75,7 +75,7 @@ fn build_msg(
             old_version.cyan(),
             new_version.cyan()
         );
-    };
+    }
 
     msg
 }
