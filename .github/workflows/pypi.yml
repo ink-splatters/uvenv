@@ -24,6 +24,7 @@ jobs:
 
       - name: Build x86_64 Linux wheels (gnu + musl)
         run: |
+          rustup target add x86_64-unknown-linux-musl
           maturin build --release --strip --target x86_64-unknown-linux-gnu --zig
           maturin build --release --strip --target x86_64-unknown-linux-musl --zig
 
@@ -44,6 +45,7 @@ jobs:
 
       - name: Build aarch64 Linux wheels (gnu + musl)
         run: |
+          rustup target add aarch64-unknown-linux-musl
           maturin build --release --strip --target aarch64-unknown-linux-gnu --zig
           maturin build --release --strip --target aarch64-unknown-linux-musl --zig
 
