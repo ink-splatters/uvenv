@@ -1,0 +1,120 @@
+name: Build and Upload Wheels
+
+on:
+  push:
+    tags:
+      - '*'  # Only run on version tags
+  workflow_dispatch:
+
+env:
+  MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+
+jobs:
+
+  linux-x64:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: astral-sh/setup-uv@v5
+      - run: uv pip install maturin
+
+      - name: Build x86_64 Linux wheels (gnu + musl)
+        run: |
+          maturin build --release --strip --target x86_64-unknown-linux-gnu --zig
+          maturin build --release --strip --target x86_64-unknown-linux-musl --zig
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-x64
+          path: target/wheels/
+
+  linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: astral-sh/setup-uv@v5
+      - run: uv pip install maturin
+
+      - name: Build aarch64 Linux wheels (gnu + musl)
+        run: |
+          maturin build --release --strip --target aarch64-unknown-linux-gnu --zig
+          maturin build --release --strip --target aarch64-unknown-linux-musl --zig
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-arm64
+          path: target/wheels/
+
+  macos-x64:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: astral-sh/setup-uv@v5
+      - run: uv pip install maturin
+
+      - name: Build macOS x86_64 wheel
+        run: maturin build --release --strip --target x86_64-apple-darwin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-x64
+          path: target/wheels/
+
+  macos-arm64:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: astral-sh/setup-uv@v5
+      - run: uv pip install maturin
+
+      - name: Build macOS arm64 wheel
+        run: maturin build --release --strip --target aarch64-apple-darwin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-arm64
+          path: target/wheels/
+
+  sdist-and-upload:
+    runs-on: ubuntu-24.04
+    needs:
+      - linux-x64
+      - linux-arm64
+      - macos-x64
+      - macos-arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: astral-sh/setup-uv@v5
+      - run: uv pip install maturin
+
+      - name: Build sdist
+        run: maturin sdist
+
+      - name: Download all wheel artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect wheels
+        run: |
+          mkdir -p target/wheels
+          find artifacts -name '*.whl' -exec cp {} target/wheels/ \;
+          cp target/*.tar.gz target/wheels/ || true
+
+      - name: Upload to PyPI
+        run: maturin upload --skip-existing -u __token__ target/wheels/*
