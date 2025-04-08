@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.11'
       - uses: astral-sh/setup-uv@v5
-      - run: uv pip install maturin
+      - run: uv pip install maturin[zig]
 
       - name: Build x86_64 Linux wheels (gnu + musl)
         run: |
@@ -40,7 +40,7 @@ jobs:
         with:
           python-version: '3.11'
       - uses: astral-sh/setup-uv@v5
-      - run: uv pip install maturin
+      - run: uv pip install maturin[zig]
 
       - name: Build aarch64 Linux wheels (gnu + musl)
         run: |
