@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## 3.7.4 (2025-04-08)
+
+### Updates
+
+* bump to uv 0.6.13
+
 ## 3.7.3 (2025-03-31)
 
 ### Updates
