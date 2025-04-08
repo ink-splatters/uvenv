@@ -30,14 +30,11 @@ jobs:
       - name: Copy uv
         run: cp ./venv/bin/uv target/release/uv
 
-      - name: Install Snapcraft
-        run: sudo snap install snapcraft --classic
-
       - name: Build snap
         # this installs snapcraft, sets up LXD and runs `snapcraft`:
         uses: snapcore/action-build@v1
 
       - name: Upload snap
         run: |
-          snapcraft login --with "${{ secrets.SNAPCRAFT_LOGIN }}"
+          echo "${{ secrets.SNAPCRAFT_LOGIN }}" | snapcraft login --with -
           snapcraft upload --release=stable *.snap
