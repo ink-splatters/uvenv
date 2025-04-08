@@ -34,7 +34,8 @@ jobs:
         run: sudo snap install snapcraft --classic
 
       - name: Build snap
-        run: snapcraft
+        # this installs snapcraft, sets up LXD and runs `snapcraft`:
+        uses: snapcore/action-build@v1
 
       - name: Upload snap
         run: |
