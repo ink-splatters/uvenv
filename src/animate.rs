@@ -53,7 +53,7 @@ pub async fn animation(
             AnimationOrder::After => {
                 eprint!("\r{} {} ", &message, &char);
             },
-        };
+        }
 
         io::stdout().flush().expect("Writing to stdout failed?");
         tokio::time::sleep(Duration::from_millis(100)).await;

@@ -166,7 +166,7 @@ pub async fn remove_symlink(symlink: &str) -> anyhow::Result<()> {
 
     if is_symlink(&target_path) {
         tokio::fs::remove_file(&target_path).await?;
-    };
+    }
 
     Ok(())
 }
