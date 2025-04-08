@@ -8,6 +8,7 @@ on:
 
 env:
   MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+  UV_SYSTEM_PYTHON: 1
 
 jobs:
 
