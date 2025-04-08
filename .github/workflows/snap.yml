@@ -1,0 +1,41 @@
+name: Build and Upload Snap Package
+
+on:
+  push:
+    tags:
+      - '*'  # Only run on version tags
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          uv venv venv --seed
+          . venv/bin/activate
+          uv pip install maturin[zig] uv
+
+      - name: Build release
+        run: cargo build --release --strip --features snap
+
+      - name: Copy uv
+        run: cp ./venv/bin/uv target/release/uv
+
+      - name: Install Snapcraft
+        run: sudo snap install snapcraft --classic
+
+      - name: Build snap
+        run: snapcraft
+
+      - name: Upload snap
+        run: |
+          snapcraft login --with "${{ secrets.SNAPCRAFT_LOGIN }}"
+          snapcraft upload --release=stable *.snap
