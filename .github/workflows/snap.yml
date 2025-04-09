@@ -6,6 +6,9 @@ on:
       - '*'  # Only run on version tags
   workflow_dispatch:  # Allow manual triggering
 
+env:
+  SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_LOGIN }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,5 +39,4 @@ jobs:
 
       - name: Upload snap
         run: |
-          echo "${{ secrets.SNAPCRAFT_LOGIN }}" | snapcraft login --with -
           snapcraft upload --release=stable *.snap
