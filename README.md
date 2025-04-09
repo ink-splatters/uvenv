@@ -1,5 +1,9 @@
 # uvenv: pipx for uv
 
+![pypi wheels](https://github.com/robinvandernoord/uvenv/actions/workflows/pypi.yml/badge.svg)
+![snapcraft](https://github.com/robinvandernoord/uvenv/actions/workflows/snap.yml/badge.svg)
+
+
 Inspired by:
 
 - [pipx](https://github.com/pypa/pipx)
