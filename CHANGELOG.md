@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## 3.7.5 (2025-04-14)
+
+### Updates
+
+* bump to uv 0.6.14
+* bump Tokio due to CWE-664
+
 ## 3.7.4 (2025-04-08)
 
 ### Updates
