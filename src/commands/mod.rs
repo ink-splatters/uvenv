@@ -4,6 +4,7 @@ pub mod create;
 
 pub mod check;
 pub mod ensurepath;
+pub mod freeze;
 pub mod inject;
 pub mod install;
 pub mod list;
@@ -21,6 +22,7 @@ pub mod self_update;
 #[deprecated(since = "3.7.0")]
 pub mod self_version;
 pub mod setup;
+pub mod thaw;
 pub mod uninject;
 pub mod uninstall;
 pub mod uninstall_all;

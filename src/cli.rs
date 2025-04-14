@@ -257,6 +257,115 @@ pub struct RunpythonOptions {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
+pub struct FreezeOptions {
+    /// The filename of the lockfile to generate. Defaults to `uvenv.lock`.
+    #[clap(
+        long,
+        default_value = "uvenv.lock",
+        help = "The filename of the lockfile to generate"
+    )]
+    pub filename: String,
+    /// The version of the dependencies to freeze. Defaults to `latest`.
+    #[clap(
+        long,
+        default_value = "latest",
+        help = "The version of the lockfile format [options: latest (1)]",
+        value_parser = validate_version
+    )]
+    pub version: Option<String>,
+    /// A list of dependencies to include in the lockfile. Conflicts with `exclude`.
+    #[clap(
+        long,
+        conflicts_with = "exclude",
+        help = "A list of dependencies to include in the lockfile"
+    )]
+    pub include: Vec<String>,
+    /// A list of dependencies to exclude from the lockfile. Conflicts with `include`.
+    #[clap(
+        long,
+        conflicts_with = "include",
+        help = "A list of dependencies to exclude from the lockfile"
+    )]
+    pub exclude: Vec<String>,
+    /// The output format of the thawed dependencies. Defaults to `toml`.
+    #[clap(
+        long,
+        default_value = "toml",
+        help = "The output format of the thawed dependencies [options: json, toml, binary]",
+        value_parser = validate_format
+    )]
+    pub format: String,
+}
+
+fn validate_version(value: &str) -> Result<String, String> {
+    match value {
+        "1" | "latest" => Ok("1".to_owned()), // also convert 'latest' into '1'
+
+        #[cfg(debug_assertions)]
+        "0" => Ok("0".to_owned()),
+
+        _ => Err("Invalid version. Only '1' and 'latest' are supported.".to_owned()),
+    }
+}
+
+fn validate_format(value: &str) -> Result<String, String> {
+    let lowered = value.to_lowercase();
+    match value.to_lowercase().as_str() {
+        "json" | "toml" | "binary" => Ok(lowered), // convert into lowered
+        _ => Err("Invalid format. Only 'json', 'toml' and 'binary' are supported.".to_owned()),
+    }
+}
+
+/// Options for the thaw command.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
+pub struct ThawOptions {
+    /// The filename of the lockfile to use. Defaults to `uvenv.lock`.
+    #[clap(
+        long,
+        default_value = "uvenv.lock",
+        help = "The filename of the lockfile to use"
+    )]
+    pub filename: String,
+    /// A list of dependencies to include when thawing. Conflicts with `exclude`.
+    #[clap(
+        long,
+        conflicts_with = "exclude",
+        help = "A list of dependencies to include when thawing"
+    )]
+    pub include: Vec<String>,
+    /// A list of dependencies to exclude when thawing. Conflicts with `include`.
+    #[clap(
+        long,
+        conflicts_with = "include",
+        help = "A list of dependencies to exclude when thawing"
+    )]
+    pub exclude: Vec<String>,
+    /// Whether to remove the whole current environment before thawing. Defaults to `false`.
+    #[clap(
+        long,
+        default_value = "false",
+        help = "Remove the current environment before thawing",
+        conflicts_with = "skip_current"
+    )]
+    pub remove_current: bool,
+    /// Whether to overwrite existing dependencies when thawing. Defaults to `true`.
+    #[clap(
+        long,
+        default_value = "false",
+        help = "Don't overwrite existing dependencies when thawing",
+        conflicts_with = "remove_current"
+    )]
+    pub skip_current: bool,
+
+    #[clap(
+        long,
+        default_value = "false",
+        help = "Ignore Python version declared in lockfile"
+    )]
+    pub ignore_python: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
 pub struct EnsurepathOptions {
     #[clap(long, short, help = "Force update")]
     pub force: bool,
@@ -343,21 +452,22 @@ pub enum Commands {
     Runpip(RunpipOptions),
     #[clap(about = "Run 'python' in the right venv.")]
     Runpython(RunpythonOptions),
+
+    #[clap(about = "Create a lock file of all installed apps, which can be reinstalled via `thaw`")]
+    Freeze(FreezeOptions),
+
+    #[clap(about = "Install applications from a lockfile (usually `uvenv.lock`)")]
+    Thaw(ThawOptions),
+
     #[clap(
         about = "Update ~/.bashrc (or ~/.zshrc) with a PATH that includes the local bin directory that uvenv uses."
     )]
     Ensurepath(EnsurepathOptions),
     #[clap(about = "Use --install to install the autocomplete script (bash).")]
     Completions(CompletionsOptions),
-
     #[clap(subcommand, about = "Manage uvenv itself.")]
     Self_(SelfCommands),
 }
-
-// todo `uvenv check`:
-//   - show missing metadata
-//   - show packages with updates
-//   - show packages with script issues
 
 impl Process for Commands {
     async fn process(self) -> anyhow::Result<i32> {
@@ -380,6 +490,8 @@ impl Process for Commands {
             Self::Completions(opts) => opts.process().await,
             Self::Run(opts) => opts.process().await,
             Self::Setup(opts) => opts.process().await,
+            Self::Freeze(opts) => opts.process().await,
+            Self::Thaw(opts) => opts.process().await,
             Self::Create(opts) => opts.process().await,
             Self::Self_(opts) => opts.process().await,
             Self::Check(opts) => opts.process().await,

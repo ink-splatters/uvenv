@@ -25,7 +25,7 @@ const INDENT: &str = "    ";
 
 // tells 'file' that a .metadata file is 'data' (instead of making it guess)
 //                           U     V     X    SOH  version(2)  STX (padding):
-const MAGIC_HEADER: &[u8] = &[0x55, 0x56, 0x58, 0x01, 0x32, 0x04, 0x00]; // hex, 7 bytes
+const MAGIC_HEADER_V2: &[u8] = &[0x55, 0x56, 0x58, 0x01, 0x32, 0x04, 0x00]; // hex, 7 bytes
 
 pub fn get_home_dir() -> PathBuf {
     #[expect(clippy::dbg_macro, reason = "Testing purposes")]
@@ -531,15 +531,15 @@ pub fn strip_header(buf: &mut Vec<u8>) {
     // postponed: the current header is 7 chars long.
     //            the version should be ignored for starts_with,
     //            and if the length should change, this must be 'match'ed based on the version
-    if buf.starts_with(MAGIC_HEADER) {
-        let _ = buf.drain(0..MAGIC_HEADER.len());
+    if buf.starts_with(MAGIC_HEADER_V2) {
+        let _ = buf.drain(0..MAGIC_HEADER_V2.len());
     }
 }
 
 /// Prepend the `MAGIC_HEADER` to a buffer
-fn add_header(buf: &mut Vec<u8>) {
-    let mut new_buf = Vec::with_capacity(MAGIC_HEADER.len() + buf.len());
-    new_buf.extend_from_slice(MAGIC_HEADER);
+pub fn add_header(buf: &mut Vec<u8>) {
+    let mut new_buf = Vec::with_capacity(MAGIC_HEADER_V2.len() + buf.len());
+    new_buf.extend_from_slice(MAGIC_HEADER_V2);
     new_buf.append(buf);
     *buf = new_buf;
 }
@@ -642,6 +642,15 @@ pub async fn load_metadata(
     Ok(metadata)
 }
 
+pub async fn serialize_msgpack<T: serde::Serialize>(metadata: &T) -> anyhow::Result<Vec<u8>> {
+    // Read the contents of the file into a Metadata struct
+    let mut bytes = rmp_serde::encode::to_vec(metadata)?;
+
+    add_header(&mut bytes);
+
+    Ok(bytes)
+}
+
 pub async fn store_generic_msgpack<T: serde::Serialize>(
     filename: &Path,
     metadata: &T,
@@ -649,10 +658,7 @@ pub async fn store_generic_msgpack<T: serde::Serialize>(
     // Open the msgpack file
     let mut file = File::create(filename).await?;
 
-    // Read the contents of the file into a Metadata struct
-    let mut bytes = rmp_serde::encode::to_vec(metadata)?;
-
-    add_header(&mut bytes);
+    let bytes = serialize_msgpack(metadata).await?;
 
     file.write_all(&bytes).await?;
 
