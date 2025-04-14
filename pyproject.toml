@@ -43,3 +43,6 @@ dev = [
 
 [tool.maturin]
 bindings = "bin"
+
+[tool.uv.workspace]
+members = ["src/*"]
