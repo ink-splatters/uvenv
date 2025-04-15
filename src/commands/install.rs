@@ -84,7 +84,16 @@ async fn store_metadata<S: Display>(
 
     metadata.editable = editable;
     metadata.install_spec = String::from(install_spec);
-    metadata.requested_version = requirement.version();
+
+    metadata.requested_version = {
+        let requested_version = requirement.version();
+        if requested_version.starts_with('~') {
+            // ignore loosey goosey
+            String::new()
+        } else {
+            requested_version
+        }
+    };
 
     metadata.python = format!(
         "{} {}",

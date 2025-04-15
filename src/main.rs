@@ -12,6 +12,7 @@ mod tests;
 mod uv;
 mod venv;
 
+mod lockfile;
 mod macros;
 mod shell;
 

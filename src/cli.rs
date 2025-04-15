@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 use clap_complete::Shell;
+use core::fmt::{Display, Formatter};
 
 pub const fn get_styles() -> clap::builder::Styles {
     clap::builder::Styles::styled()
@@ -256,6 +257,75 @@ pub struct RunpythonOptions {
     pub python_args: Vec<String>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, clap::ValueEnum)]
+pub enum OutputFormat {
+    #[default]
+    #[expect(clippy::upper_case_acronyms, reason = "Json just looks weird")]
+    JSON,
+    #[expect(clippy::upper_case_acronyms, reason = "Toml just looks weird")]
+    TOML,
+    Binary,
+}
+
+// impl OutputFormat {
+//     pub fn to_string(&self) -> String {
+//         match self {
+//             Self::JSON => "json".to_owned(),
+//             Self::TOML => "toml".to_owned(),
+//             Self::Binary => "binary".to_owned(),
+//         }
+//     }
+//     pub fn from_str(string: &str) -> Self {
+//         match string.to_lowercase().as_ref() {
+//             "toml" => Self::TOML,
+//             "json" => Self::JSON,
+//             "binary" | "msgpack" => Self::Binary,
+//             other => {
+//                 eprintln!("Unexpected format {other}! Using `toml` instead.");
+//                 Self::TOML
+//             },
+//         }
+//     }
+// }
+
+// includes to_string:
+impl Display for OutputFormat {
+    #[expect(
+        clippy::min_ident_chars,
+        reason = "The argument is called `f` in the trait."
+    )]
+    fn fmt(
+        &self,
+        f: &mut Formatter<'_>,
+    ) -> core::fmt::Result {
+        f.write_str(match self {
+            Self::JSON => "json",
+            Self::TOML => "toml",
+            Self::Binary => "binary",
+        })
+    }
+}
+
+impl From<String> for OutputFormat {
+    fn from(string: String) -> Self {
+        // Self::from_str(&value)
+        match string.to_lowercase().as_ref() {
+            "toml" => Self::TOML,
+            "json" => Self::JSON,
+            "binary" | "msgpack" => Self::Binary,
+            other => {
+                eprintln!("Unexpected format {other}! Using `toml` instead.");
+                Self::TOML
+            },
+        }
+    }
+}
+impl From<OutputFormat> for String {
+    fn from(value: OutputFormat) -> Self {
+        value.to_string()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
 pub struct FreezeOptions {
     /// The filename of the lockfile to generate. Defaults to `uvenv.lock`.
@@ -287,14 +357,13 @@ pub struct FreezeOptions {
         help = "A list of dependencies to exclude from the lockfile"
     )]
     pub exclude: Vec<String>,
-    /// The output format of the thawed dependencies. Defaults to `toml`.
+    /// The output format of the frozen dependencies. Defaults to `toml`.
     #[clap(
         long,
         default_value = "toml",
-        help = "The output format of the thawed dependencies [options: json, toml, binary]",
-        value_parser = validate_format
+        help = "The output format of the frozen dependencies"
     )]
-    pub format: String,
+    pub format: OutputFormat,
 }
 
 fn validate_version(value: &str) -> Result<String, String> {
@@ -305,14 +374,6 @@ fn validate_version(value: &str) -> Result<String, String> {
         "0" => Ok("0".to_owned()),
 
         _ => Err("Invalid version. Only '1' and 'latest' are supported.".to_owned()),
-    }
-}
-
-fn validate_format(value: &str) -> Result<String, String> {
-    let lowered = value.to_lowercase();
-    match value.to_lowercase().as_str() {
-        "json" | "toml" | "binary" => Ok(lowered), // convert into lowered
-        _ => Err("Invalid format. Only 'json', 'toml' and 'binary' are supported.".to_owned()),
     }
 }
 
@@ -429,7 +490,7 @@ pub enum Commands {
     UpgradeAll(UpgradeAllOptions),
     #[clap(aliases = &["delete", "remove", "rm"], about = "Uninstall a package (by pip name).")]
     Uninstall(UninstallOptions),
-    #[clap(about = "Uninstall all uvenv-installed packages.")]
+    #[clap(aliases = &["remove_all", "delete_all"], about = "Uninstall all uvenv-installed packages.")]
     UninstallAll(UninstallAllOptions),
     #[clap(
         about = "Uninstall a package (by pip name) and re-install from the original spec (unless a new spec is supplied)."
