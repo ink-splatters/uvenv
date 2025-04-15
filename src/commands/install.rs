@@ -163,7 +163,9 @@ pub async fn install_package<S: AsRef<str> + Display>(
     }
 
     let requirement_name = requirement.name.to_string();
+    dbg!(&requirement_name);
     let mut metadata = store_metadata(
+        // fixme: strip soft spec (~) from requirement_name
         &requirement_name,
         &requirement,
         inject,

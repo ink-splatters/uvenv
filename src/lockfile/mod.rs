@@ -6,6 +6,7 @@ use regex::Regex;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::collections::BTreeMap;
+use anyhow::anyhow;
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
 
@@ -66,21 +67,21 @@ trait Lockfile<'de, P: PackageSpec + From<Metadata> + Debug + Serialize> {
 }
 
 pub trait AutoDeserialize: DeserializeOwned {
-    fn from_json(data: &[u8]) -> Option<Self> {
-        serde_json::from_slice(data).ok()
+    fn from_json(data: &[u8]) -> anyhow::Result<Self> {
+        serde_json::from_slice(data).map_err(|err| anyhow!(err))
     }
-    fn from_msgpack(data: &[u8]) -> Option<Self> {
-        rmp_serde::decode::from_slice(data).ok()
+    fn from_msgpack(data: &[u8]) -> anyhow::Result<Self> {
+        rmp_serde::decode::from_slice(data).map_err(|err| anyhow!(err))
     }
-    fn from_toml(data: &[u8]) -> Option<Self> {
-        let data_str = String::from_utf8(data.to_owned()).ok()?;
-        toml::from_str(&data_str).ok()
+    fn from_toml(data: &[u8]) -> anyhow::Result<Self> {
+        let data_str = String::from_utf8(data.to_owned())?;
+        toml::from_str(&data_str).map_err(|err| anyhow!(err))
     }
 
     fn from_format(
         data: &[u8],
         format: OutputFormat,
-    ) -> Option<Self> {
+    ) -> anyhow::Result<Self> {
         match format {
             OutputFormat::JSON => Self::from_json(data),
             OutputFormat::TOML => Self::from_toml(data),
@@ -90,9 +91,9 @@ pub trait AutoDeserialize: DeserializeOwned {
 
     fn auto(data: &[u8]) -> Option<(Self, OutputFormat)> {
         None /* Start with None so the rest or_else are all the same structure */
-            .or_else(|| Self::from_json(data).map(|version| (version, OutputFormat::JSON)))
-            .or_else(|| Self::from_msgpack(data).map(|version| (version, OutputFormat::Binary)))
-            .or_else(|| Self::from_toml(data).map(|version| (version, OutputFormat::TOML)))
+            .or_else(|| Self::from_json(data).ok().map(|version| (version, OutputFormat::JSON)))
+            .or_else(|| Self::from_msgpack(data).ok().map(|version| (version, OutputFormat::Binary)))
+            .or_else(|| Self::from_toml(data).ok().map(|version| (version, OutputFormat::TOML)))
     }
 }
 

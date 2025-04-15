@@ -3,11 +3,14 @@ use crate::commands::freeze::Freeze;
 use crate::commands::install::install_package;
 use crate::commands::list::list_packages;
 use crate::commands::thaw::Thaw;
-use crate::lockfile::{AutoDeserialize, Lockfile, PackageMap, PackageSpec, extract_python_version};
-use crate::metadata::{LoadMetadataConfig, Metadata, serialize_msgpack, venv_path};
+use crate::helpers::{PathAsStr, ResultToString};
+use crate::lockfile::{extract_python_version, AutoDeserialize, Lockfile, PackageMap, PackageSpec};
+use crate::metadata::{get_venv_dir, serialize_msgpack, venv_path, LoadMetadataConfig, Metadata};
 use crate::venv::remove_venv;
-use anyhow::bail;
+use anyhow::{anyhow, Context};
 use core::fmt::Debug;
+use itertools::Itertools;
+use owo_colors::OwoColorize;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
@@ -20,9 +23,13 @@ pub struct LockfileV1 {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Serialize, Deserialize)]
 struct PackageSpecV1 {
     spec: String,
+    #[serde(default)]
     version: String,
+    #[serde(default)]
     python: Option<String>,
+    #[serde(default)]
     injected: Vec<String>,
+    #[serde(default)]
     editable: bool,
 }
 
@@ -141,16 +148,43 @@ impl Thaw for LockfileV1 {
     where
         Self: Sized + Debug + DeserializeOwned,
     {
-        let Some(instance) = Self::from_format(data, format) else {
-            bail!("Could not thaw data.");
+
+        let instance = match Self::from_format(data, format) {
+            Err(err) => {
+                return Err(err).with_context(|| "Could not thaw data.")
+            }
+            Ok(instance) => {instance}
         };
 
+        let mut possible_errors: Vec<Result<(), String>> = Vec::new();
+
         if options.remove_current {
-            dbg!("Remove Current folder.");
+            let venvs_dir = get_venv_dir();
+            possible_errors.push(
+                tokio::fs::remove_dir_all(&venvs_dir)
+                    .await
+                    .with_context(|| {
+                        format!("Trying to remove all venvs at {}", venvs_dir.as_str().red())
+                    })
+                    .map_err_to_string(),
+            );
         }
 
-        // todo: filter based on include/exclude:
-        let to_install = instance.packages;
+        let to_install = if !options.include.is_empty() {
+            instance
+                .packages
+                .into_iter()
+                .filter(|(name, _)| options.include.contains(name))
+                .collect()
+        } else if !options.exclude.is_empty() {
+            instance
+                .packages
+                .into_iter()
+                .filter(|(name, _)| !options.exclude.contains(name))
+                .collect()
+        } else {
+            instance.packages
+        };
 
         for (name, pkg) in to_install {
             // format.skip_current
@@ -166,23 +200,51 @@ impl Thaw for LockfileV1 {
                 if options.skip_current {
                     continue;
                 }
-                // todo: if error, add to errors:
-                let _ = remove_venv(&venv_path).await;
+                possible_errors.push(
+                    remove_venv(&venv_path)
+                        .await
+                        .with_context(|| {
+                            format!("Trying to remove venv {}", venv_path.as_str().red())
+                        })
+                        .map_err_to_string(),
+                );
             }
+            
+            let spec = if pkg.version.starts_with('~') {
+                // soft versioned spec:
+                format!("{}{}", pkg.spec, pkg.version)
+            } else {
+                // hard versioned spec:
+                pkg.spec
+            };
 
-            // todo: if error, add to errors:
-            let _ = install_package(
-                &pkg.spec,
-                None,
-                python,
-                true,
-                &pkg.injected,
-                false,
-                pkg.editable,
-            )
-            .await;
+            possible_errors.push(
+                install_package(
+                    &spec,
+                    None,
+                    python,
+                    true,
+                    &pkg.injected,
+                    false,
+                    pkg.editable,
+                )
+                .await
+                .map(|feedback| println!("{feedback}"))
+                .with_context(|| format!("Trying to install {}", name.red()))
+                .map_err_to_string(),
+            );
         }
 
-        Ok(0)
+        
+        let errors = possible_errors.into_iter().filter_map(Result::err).join("\n");
+
+        if errors.is_empty() {
+            Ok(0)
+        } else {
+            Err(
+                anyhow!(errors)
+            ).with_context(|| "Not everything went as expected.")
+        }
+        
     }
 }

@@ -1,6 +1,7 @@
 use core::any::type_name;
 use std::env;
 use std::ffi::OsStr;
+use core::fmt::Display;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
@@ -17,11 +18,11 @@ pub fn set_env_var<K: AsRef<OsStr>, V: AsRef<OsStr>>(
 }
 
 pub trait ResultToString<T, E> {
-    #[expect(dead_code, reason = "Could still be useful sometimes")]
+    // #[expect(dead_code, reason = "Could still be useful sometimes")]
     fn map_err_to_string(self) -> Result<T, String>;
 }
 
-impl<T, E: core::error::Error> ResultToString<T, E> for Result<T, E> {
+impl<T, E: Display> ResultToString<T, E> for Result<T, E> {
     fn map_err_to_string(self) -> Result<T, String> {
         self.map_err(|err| err.to_string())
     }
