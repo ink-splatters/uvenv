@@ -1,3 +1,4 @@
+
 use crate::cli::{FreezeOptions, Process};
 use crate::commands::list::list_packages;
 use crate::metadata::{LoadMetadataConfig, Metadata, serialize_msgpack};
@@ -6,60 +7,44 @@ use core::fmt::Debug;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use owo_colors::OwoColorize;
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
 
 type PackageMap<P> = BTreeMap<String, P>;
 
-async fn serialize_and_patch<S: Serialize>(
-    format: &str,
-    something: &S,
-) -> anyhow::Result<Vec<u8>> {
-    let serialized = match format {
-        "toml" => {
-            // this `to_document` converts everything to inline tables:
-            let mut doc = toml_edit::ser::to_document(something)?;
-
-            // now convert all top-level tables from inline to regular:
-            for (_, item) in doc.iter_mut() {
-                // Attempt to convert the inline table into a normal table.
-                // Here we use as_inline_table_mut; if the packages field is indeed an inline table,
-                // we can take it out and call .into_table() to convert it.
-                if let Some(inline_table) = item.as_inline_table_mut() {
-                    // Replace the inline table with a block table.
-                    // Note: std::mem::take clears the inline table, leaving an empty one behind.
-                    let table = core::mem::take(inline_table).into_table();
-                    *item = toml_edit::Item::Table(table);
-                }
-            }
-
-            doc.to_string().into_bytes()
-        },
-        "json" => serde_json::to_string_pretty(something)?.into_bytes(),
-        "binary" => serialize_msgpack(something).await?,
-        other => {
-            bail!("Unsupported format {}", other);
-        },
-    };
-
-    Ok(serialized)
-}
-
-async fn dump_to_file<S: Serialize>(
-    data: &S,
-    filename: &str,
-    format: &str,
-) -> anyhow::Result<()> {
-    let serialized = serialize_and_patch(format, data).await?;
-
-    let mut file = File::create(filename).await?;
-    file.write_all(&serialized).await?;
-
-    Ok(())
-}
 
 trait Lockfile<'de, P: PackageSpec + From<Metadata> + Debug + Serialize> {
     fn new(packages: PackageMap<P>) -> Self;
+
+    async fn serialize_and_patch(
+        &self,
+        options: &FreezeOptions
+    ) -> anyhow::Result<Vec<u8>>
+    where
+        Self: Sized + Serialize;
+
+    // predefined implementations:
+
+    async fn dump_to_file(
+        &self,
+        options: &FreezeOptions
+    ) -> anyhow::Result<()>
+    where
+        Self: Sized + Serialize,
+    {
+        let format = &options.format;
+        let filename = &options.filename;
+        
+        let serialized = self.serialize_and_patch(options).await?;
+
+        let mut file = File::create(filename).await?;
+        file.write_all(&serialized).await?;
+
+        eprintln!("Saved {} to {}.", format.blue(), filename.green());
+        
+        Ok(())
+    }
 
     async fn write(
         packages: PackageMap<P>,
@@ -69,7 +54,9 @@ trait Lockfile<'de, P: PackageSpec + From<Metadata> + Debug + Serialize> {
         Self: Sized + Debug + Serialize,
     {
         let instance = Self::new(packages);
-        dump_to_file(&instance, &options.filename, options.format.as_ref()).await?;
+        instance
+            .dump_to_file(options)
+            .await?;
         Ok(true)
     }
 
@@ -115,24 +102,49 @@ trait Lockfile<'de, P: PackageSpec + From<Metadata> + Debug + Serialize> {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Serialize, Deserialize)]
-struct PackageSpecV0 {
-    version: i8,
-}
+#[cfg(debug_assertions)]
+struct PackageSpecV0;
 
+#[cfg(debug_assertions)]
 impl From<Metadata> for PackageSpecV0 {
     fn from(_: Metadata) -> Self {
-        Self { version: 0 }
+        Self { }
     }
 }
 
+#[cfg(debug_assertions)]
 impl PackageSpec for PackageSpecV0 {}
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Serialize, Deserialize)]
-struct LockfileV0;
+#[cfg(debug_assertions)]
+struct LockfileV0 {
+    version: i8
+}
 
+#[cfg(debug_assertions)]
 impl Lockfile<'_, PackageSpecV0> for LockfileV0 {
     fn new(_: PackageMap<PackageSpecV0>) -> Self {
-        Self {}
+        Self {
+            version: 0
+        }
+    }
+
+    async fn serialize_and_patch(
+        &self,
+        options: &FreezeOptions
+    ) -> anyhow::Result<Vec<u8>> {
+        Ok(
+            match options.format.as_ref() {
+                "toml" => {
+                    toml::to_string(self)?.into_bytes()
+                },
+                "json" => serde_json::to_string_pretty(self)?.into_bytes(),
+                "binary" => serialize_msgpack(self).await?,
+                other => {
+                    bail!("Unsupported format {}", other);
+                },
+            }
+        )
     }
 }
 
@@ -148,6 +160,40 @@ impl Lockfile<'_, PackageSpecV1> for LockfileV1 {
             version: 1,
             packages,
         }
+    }
+
+    async fn serialize_and_patch(
+        &self,
+        options: &FreezeOptions
+    ) -> anyhow::Result<Vec<u8>> {
+        let serialized = match options.format.as_ref() {
+            "toml" => {
+                // this `to_document` converts everything to inline tables:
+                let mut doc = toml_edit::ser::to_document(self)?;
+
+                // now convert all top-level tables from inline to regular:
+                for (_, item) in doc.iter_mut() {
+                    // Attempt to convert the inline table into a normal table.
+                    // Here we use as_inline_table_mut; if the packages field is indeed an inline table,
+                    // we can take it out and call .into_table() to convert it.
+                    if let Some(inline_table) = item.as_inline_table_mut() {
+                        // Replace the inline table with a block table.
+                        // Note: std::mem::take clears the inline table, leaving an empty one behind.
+                        let table = core::mem::take(inline_table).into_table();
+                        *item = toml_edit::Item::Table(table);
+                    }
+                }
+
+                doc.to_string().into_bytes()
+            },
+            "json" => serde_json::to_string_pretty(self)?.into_bytes(),
+            "binary" => serialize_msgpack(self).await?,
+            other => {
+                bail!("Unsupported format {}", other);
+            },
+        };
+
+        Ok(serialized)
     }
 }
 
@@ -205,6 +251,7 @@ impl Process for FreezeOptions {
         let version = self.version.as_ref().map_or(LATEST_VERSION, |ver| ver);
 
         match version {
+            #[cfg(debug_assertions)]
             "0" => LockfileV0::process(&self).await,
             "1" => LockfileV1::process(&self).await,
             _ => {
