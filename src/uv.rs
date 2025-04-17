@@ -110,9 +110,8 @@ fn uv_offline_client() -> BaseClientBuilder<'static> {
 }
 
 /// e.g. 3.12 -> /usr/lib/python3.12, to match with `metadata.python_raw`
-pub async fn uv_search_python(python: Option<&String>) -> Option<String> {
-    let interpreter_request =
-        python.map(|requested_version| PythonRequest::parse(requested_version));
+pub async fn uv_search_python(python: Option<&str>) -> Option<String> {
+    let interpreter_request = python.map(PythonRequest::parse);
 
     let python_request = interpreter_request.as_ref()?; // exit early
 
