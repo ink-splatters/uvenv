@@ -377,6 +377,7 @@ fn validate_version(value: &str) -> Result<String, String> {
     }
 }
 
+
 /// Options for the thaw command.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
 pub struct ThawOptions {
@@ -420,10 +421,10 @@ pub struct ThawOptions {
 
     #[clap(
         long,
-        default_value = "false",
-        help = "Ignore Python version declared in lockfile"
+        default_value = "frozen",
+        help = "Which version of Python to use when thawing. [Options: frozen (default; use versions defined in lockfile), ignore (use default Python), <version> (specific Python version, e.g. 3.12, python3.12)]"
     )]
-    pub ignore_python: bool,
+    pub python: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
@@ -490,7 +491,7 @@ pub enum Commands {
     UpgradeAll(UpgradeAllOptions),
     #[clap(aliases = &["delete", "remove", "rm"], about = "Uninstall a package (by pip name).")]
     Uninstall(UninstallOptions),
-    #[clap(aliases = &["remove_all", "delete_all"], about = "Uninstall all uvenv-installed packages.")]
+    #[clap(aliases = &["remove-all", "delete-all"], about = "Uninstall all uvenv-installed packages.")]
     UninstallAll(UninstallAllOptions),
     #[clap(
         about = "Uninstall a package (by pip name) and re-install from the original spec (unless a new spec is supplied)."

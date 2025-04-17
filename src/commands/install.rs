@@ -53,7 +53,7 @@ pub async fn uv_install_package<S: AsRef<str>>(
 async fn ensure_venv(
     maybe_venv: Option<&Path>,
     requirement: &Requirement,
-    python: Option<&String>,
+    python: Option<&str>,
     force: bool,
 ) -> anyhow::Result<PathBuf> {
     match maybe_venv {
@@ -145,13 +145,19 @@ pub async fn install_symlinks(
 pub async fn install_package<S: AsRef<str> + Display>(
     install_spec: &str,
     maybe_venv: Option<&Path>,
-    python: Option<&String>,
+    python: Option<&str>,
     force: bool,
     inject: &[S],
     no_cache: bool,
     editable: bool,
 ) -> anyhow::Result<String> {
-    let (requirement, resolved_install_spec) = parse_requirement(install_spec).await?;
+    let (requirement, mut resolved_install_spec) = parse_requirement(install_spec).await?;
+
+    if resolved_install_spec.contains("~=") {
+        // remove loosey goosey version: `x~=1.1.1` -> `x`
+        let (name, _version) = &resolved_install_spec.split_once("~=").unwrap_or_default();
+        resolved_install_spec = String::from(*name);
+    }
 
     let venv_path = ensure_venv(maybe_venv, &requirement, python, force).await?;
     let uv_venv = activate_venv(&venv_path).await?;
@@ -163,9 +169,7 @@ pub async fn install_package<S: AsRef<str> + Display>(
     }
 
     let requirement_name = requirement.name.to_string();
-    dbg!(&requirement_name);
     let mut metadata = store_metadata(
-        // fixme: strip soft spec (~) from requirement_name
         &requirement_name,
         &requirement,
         inject,
@@ -202,7 +206,7 @@ impl Process for InstallOptions {
         match install_package(
             &self.package_name,
             None,
-            self.python.as_ref(),
+            self.python.as_deref(),
             self.force,
             &self.with,
             self.no_cache,

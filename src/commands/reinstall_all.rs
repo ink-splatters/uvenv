@@ -5,7 +5,7 @@ use crate::metadata::LoadMetadataConfig;
 use anyhow::{Context, anyhow};
 
 pub async fn reinstall_all(
-    python: Option<&String>,
+    python: Option<&str>,
     force: bool,
     without_injected: bool,
     no_cache: bool,
@@ -47,7 +47,7 @@ pub async fn reinstall_all(
 impl Process for ReinstallAllOptions {
     async fn process(self) -> anyhow::Result<i32> {
         match reinstall_all(
-            self.python.as_ref(),
+            self.python.as_deref(),
             self.force,
             self.without_injected,
             self.no_cache,

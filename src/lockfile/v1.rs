@@ -4,10 +4,10 @@ use crate::commands::install::install_package;
 use crate::commands::list::list_packages;
 use crate::commands::thaw::Thaw;
 use crate::helpers::{PathAsStr, ResultToString};
-use crate::lockfile::{extract_python_version, AutoDeserialize, Lockfile, PackageMap, PackageSpec};
-use crate::metadata::{get_venv_dir, serialize_msgpack, venv_path, LoadMetadataConfig, Metadata};
+use crate::lockfile::{AutoDeserialize, Lockfile, PackageMap, PackageSpec, extract_python_version};
+use crate::metadata::{LoadMetadataConfig, Metadata, get_venv_dir, serialize_msgpack, venv_path};
 use crate::venv::remove_venv;
-use anyhow::{anyhow, Context};
+use anyhow::{Context, anyhow};
 use core::fmt::Debug;
 use itertools::Itertools;
 use owo_colors::OwoColorize;
@@ -148,12 +148,9 @@ impl Thaw for LockfileV1 {
     where
         Self: Sized + Debug + DeserializeOwned,
     {
-
         let instance = match Self::from_format(data, format) {
-            Err(err) => {
-                return Err(err).with_context(|| "Could not thaw data.")
-            }
-            Ok(instance) => {instance}
+            Err(err) => return Err(err).with_context(|| "Could not thaw data."),
+            Ok(instance) => instance,
         };
 
         let mut possible_errors: Vec<Result<(), String>> = Vec::new();
@@ -187,13 +184,22 @@ impl Thaw for LockfileV1 {
         };
 
         for (name, pkg) in to_install {
-            // format.skip_current
-            // format.ignore_python
-            let python = if options.ignore_python {
-                None
-            } else {
-                pkg.python.as_ref()
+            let python_lower = options.python.to_lowercase();
+            let python: Option<&str> = match python_lower.as_ref() {
+                "frozen" => {
+                    // default: use the python version from the lockfile:
+                    pkg.python.as_deref() // Option<String> -> Option<&str>
+                },
+                "ignore" => {
+                    // use (system) default:
+                    None
+                },
+                specific => {
+                    // use specific one:
+                    Some(specific)
+                },
             };
+
             let venv_path = venv_path(&name);
 
             if venv_path.exists() {
@@ -209,8 +215,8 @@ impl Thaw for LockfileV1 {
                         .map_err_to_string(),
                 );
             }
-            
-            let spec = if pkg.version.starts_with('~') {
+
+            let spec = if pkg.version.starts_with('~') & !pkg.spec.contains('@') {
                 // soft versioned spec:
                 format!("{}{}", pkg.spec, pkg.version)
             } else {
@@ -235,16 +241,15 @@ impl Thaw for LockfileV1 {
             );
         }
 
-        
-        let errors = possible_errors.into_iter().filter_map(Result::err).join("\n");
+        let errors = possible_errors
+            .into_iter()
+            .filter_map(Result::err)
+            .join("\n");
 
         if errors.is_empty() {
             Ok(0)
         } else {
-            Err(
-                anyhow!(errors)
-            ).with_context(|| "Not everything went as expected.")
+            Err(anyhow!(errors)).with_context(|| "Not everything went as expected.")
         }
-        
     }
 }

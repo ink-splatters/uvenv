@@ -24,7 +24,8 @@ pub trait ResultToString<T, E> {
 
 impl<T, E: Display> ResultToString<T, E> for Result<T, E> {
     fn map_err_to_string(self) -> Result<T, String> {
-        self.map_err(|err| err.to_string())
+        // instead of to_string(), this will include more info:
+        self.map_err(|err| format!("{err:#}"))
     }
 }
 
