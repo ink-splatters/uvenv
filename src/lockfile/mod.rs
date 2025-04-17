@@ -1,12 +1,12 @@
 use crate::cli::{FreezeOptions, OutputFormat};
 use crate::metadata::Metadata;
+use anyhow::anyhow;
 use core::fmt::Debug;
 use owo_colors::OwoColorize;
 use regex::Regex;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::collections::BTreeMap;
-use anyhow::anyhow;
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
 
@@ -91,9 +91,21 @@ pub trait AutoDeserialize: DeserializeOwned {
 
     fn auto(data: &[u8]) -> Option<(Self, OutputFormat)> {
         None /* Start with None so the rest or_else are all the same structure */
-            .or_else(|| Self::from_json(data).ok().map(|version| (version, OutputFormat::JSON)))
-            .or_else(|| Self::from_msgpack(data).ok().map(|version| (version, OutputFormat::Binary)))
-            .or_else(|| Self::from_toml(data).ok().map(|version| (version, OutputFormat::TOML)))
+            .or_else(|| {
+                Self::from_json(data)
+                    .ok()
+                    .map(|version| (version, OutputFormat::JSON))
+            })
+            .or_else(|| {
+                Self::from_msgpack(data)
+                    .ok()
+                    .map(|version| (version, OutputFormat::Binary))
+            })
+            .or_else(|| {
+                Self::from_toml(data)
+                    .ok()
+                    .map(|version| (version, OutputFormat::TOML))
+            })
     }
 }
 

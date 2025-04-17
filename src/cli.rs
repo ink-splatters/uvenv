@@ -377,7 +377,6 @@ fn validate_version(value: &str) -> Result<String, String> {
     }
 }
 
-
 /// Options for the thaw command.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
 pub struct ThawOptions {

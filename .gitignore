@@ -75,5 +75,5 @@ docs/_build/
 .env
 
 # Uvenv
-uvenv.lock
+*.lock
 

@@ -1,7 +1,7 @@
 use core::any::type_name;
+use core::fmt::Display;
 use std::env;
 use std::ffi::OsStr;
-use core::fmt::Display;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 
