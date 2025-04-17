@@ -2,6 +2,15 @@
 
 <!--next-version-placeholder-->
 
+## 3.8.0 (2025-04-17)
+
+### Features
+
+* Added `uvenv freeze` command to generate a lockfile of installed applications, with support for custom filenames,
+  formats (`json`, `toml`, `binary`), and inclusion/exclusion filters.
+* Added `uvenv thaw` command to reinstall applications from a lockfile, with options to remove or skip existing
+  environments, filter specific dependencies, and control Python version resolution.
+
 ## 3.7.5 (2025-04-14)
 
 ### Updates
@@ -42,7 +51,7 @@
 ### Features
 
 * replace `self version` with more verbose `self info`
-* First release of `uvenv` on `snap` - `snap install uvenv`, 
+* First release of `uvenv` on `snap` - `snap install uvenv`,
   with some features (self-update, rcfile editing) disabled because of snapcraft's strict permission system.
 
 ## 3.6.5 (2025-03-12)
