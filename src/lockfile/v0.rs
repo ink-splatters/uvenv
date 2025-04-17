@@ -9,26 +9,21 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Serialize, Deserialize)]
-#[cfg(debug_assertions)]
 struct PackageSpecV0;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Serialize, Deserialize)]
-#[cfg(debug_assertions)]
 pub struct LockfileV0 {
     version: i8,
 }
 
-#[cfg(debug_assertions)]
 impl From<Metadata> for PackageSpecV0 {
     fn from(_: Metadata) -> Self {
         Self {}
     }
 }
 
-#[cfg(debug_assertions)]
 impl PackageSpec for PackageSpecV0 {}
 
-#[cfg(debug_assertions)]
 impl Lockfile<'_, PackageSpecV0> for LockfileV0 {
     fn new(_: PackageMap<PackageSpecV0>) -> Self {
         Self { version: 0 }
