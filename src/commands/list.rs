@@ -83,7 +83,7 @@ async fn is_uvenv_outdated(silent: bool) -> bool {
 pub async fn list_packages(
     config: &LoadMetadataConfig,
     filter_names: Option<&[String]>,
-    python: Option<&String>,
+    python: Option<&str>,
 ) -> anyhow::Result<Vec<Metadata>> {
     let venv_dir_path = get_venv_dir();
 
@@ -113,7 +113,7 @@ impl Process for ListOptions {
 
         let config = self.to_metadataconfig();
 
-        let items = list_packages(&config, Some(&self.venv_names), self.python.as_ref()).await?;
+        let items = list_packages(&config, Some(&self.venv_names), self.python.as_deref()).await?;
 
         if self.json {
             return self.process_json(&items);

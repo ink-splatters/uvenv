@@ -58,7 +58,7 @@ async fn find_executable_raw(
 
 pub async fn find_executable(
     requirement: &Requirement,
-    binary: Option<&String>,
+    binary: Option<&str>,
     package_spec: &str,
     venv: &PythonEnvironment,
     venv_path: &Path,
@@ -74,7 +74,7 @@ pub async fn find_executable(
 
 pub async fn run_executable(
     requirement: &Requirement,
-    binary: Option<&String>,
+    binary: Option<&str>,
     package_spec: &str,
     venv: &PythonEnvironment,
     venv_path: &Path,
@@ -87,10 +87,10 @@ pub async fn run_executable(
 }
 pub async fn run_package<S: AsRef<str>>(
     package_spec: &str,
-    python: Option<&String>,
+    python: Option<&str>,
     keep: bool,
     no_cache: bool,
-    binary: Option<&String>,
+    binary: Option<&str>,
     inject: &[S],
     args: &[String],
 ) -> anyhow::Result<i32> {
@@ -141,10 +141,10 @@ impl Process for RunOptions {
     async fn process(self) -> anyhow::Result<i32> {
         run_package(
             &self.package_name,
-            self.python.as_ref(),
+            self.python.as_deref(),
             self.keep,
             self.no_cache,
-            self.binary.as_ref(),
+            self.binary.as_deref(),
             &self.with,
             &self.args,
         )

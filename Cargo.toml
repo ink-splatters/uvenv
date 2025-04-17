@@ -71,6 +71,8 @@ uv-pep508 = { git = "https://github.com/astral-sh/uv.git", tag = "0.6.14" }
 # install-wheel-rs = { git = "https://github.com/astral-sh/uv.git", tag = "0.6.14" }
 uv-pypi-types = { git = "https://github.com/astral-sh/uv.git", tag = "0.6.14" }
 uv-tool = { git = "https://github.com/astral-sh/uv.git", tag = "0.6.14" }
+toml = "0.8.20"
+toml_edit = "0.22.24"
 
 [patch.crates-io]
 # black magic fuckery, required after 0.2.18 and before 0.5.2, otherwise uv-client won't compile; https://github.com/astral-sh/reqwest-middleware

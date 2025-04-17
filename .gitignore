@@ -74,3 +74,6 @@ docs/_build/
 .python-version
 .env
 
+# Uvenv
+*.lock
+

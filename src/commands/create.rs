@@ -6,7 +6,7 @@ use owo_colors::OwoColorize;
 
 pub async fn create(
     name: &str,
-    python: Option<&String>,
+    python: Option<&str>,
     seed: bool,
     force: bool,
 ) -> anyhow::Result<String> {
@@ -29,7 +29,7 @@ impl Process for CreateOptions {
     async fn process(self) -> anyhow::Result<i32> {
         match create(
             &self.venv_name,
-            self.python.as_ref(),
+            self.python.as_deref(),
             !self.no_seed,
             self.force,
         )

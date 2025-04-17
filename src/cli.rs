@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 use clap_complete::Shell;
+use core::fmt::{Display, Formatter};
 
 pub const fn get_styles() -> clap::builder::Styles {
     clap::builder::Styles::styled()
@@ -256,6 +257,175 @@ pub struct RunpythonOptions {
     pub python_args: Vec<String>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, clap::ValueEnum)]
+pub enum OutputFormat {
+    #[default]
+    #[expect(clippy::upper_case_acronyms, reason = "Json just looks weird")]
+    JSON,
+    #[expect(clippy::upper_case_acronyms, reason = "Toml just looks weird")]
+    TOML,
+    Binary,
+}
+
+// impl OutputFormat {
+//     pub fn to_string(&self) -> String {
+//         match self {
+//             Self::JSON => "json".to_owned(),
+//             Self::TOML => "toml".to_owned(),
+//             Self::Binary => "binary".to_owned(),
+//         }
+//     }
+//     pub fn from_str(string: &str) -> Self {
+//         match string.to_lowercase().as_ref() {
+//             "toml" => Self::TOML,
+//             "json" => Self::JSON,
+//             "binary" | "msgpack" => Self::Binary,
+//             other => {
+//                 eprintln!("Unexpected format {other}! Using `toml` instead.");
+//                 Self::TOML
+//             },
+//         }
+//     }
+// }
+
+// includes to_string:
+impl Display for OutputFormat {
+    #[expect(
+        clippy::min_ident_chars,
+        reason = "The argument is called `f` in the trait."
+    )]
+    fn fmt(
+        &self,
+        f: &mut Formatter<'_>,
+    ) -> core::fmt::Result {
+        f.write_str(match self {
+            Self::JSON => "json",
+            Self::TOML => "toml",
+            Self::Binary => "binary",
+        })
+    }
+}
+
+impl From<String> for OutputFormat {
+    fn from(string: String) -> Self {
+        // Self::from_str(&value)
+        match string.to_lowercase().as_ref() {
+            "toml" => Self::TOML,
+            "json" => Self::JSON,
+            "binary" | "msgpack" => Self::Binary,
+            other => {
+                eprintln!("Unexpected format {other}! Using `toml` instead.");
+                Self::TOML
+            },
+        }
+    }
+}
+impl From<OutputFormat> for String {
+    fn from(value: OutputFormat) -> Self {
+        value.to_string()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
+pub struct FreezeOptions {
+    /// The filename of the lockfile to generate. Defaults to `uvenv.lock`.
+    #[clap(
+        long,
+        default_value = "uvenv.lock",
+        help = "The filename of the lockfile to generate"
+    )]
+    pub filename: String,
+    /// The version of the dependencies to freeze. Defaults to `latest`.
+    #[clap(
+        long,
+        default_value = "latest",
+        help = "The version of the lockfile format [options: latest (1)]",
+        value_parser = validate_version
+    )]
+    pub version: Option<String>,
+    /// A list of dependencies to include in the lockfile. Conflicts with `exclude`.
+    #[clap(
+        long,
+        conflicts_with = "exclude",
+        help = "A list of dependencies to include in the lockfile"
+    )]
+    pub include: Vec<String>,
+    /// A list of dependencies to exclude from the lockfile. Conflicts with `include`.
+    #[clap(
+        long,
+        conflicts_with = "include",
+        help = "A list of dependencies to exclude from the lockfile"
+    )]
+    pub exclude: Vec<String>,
+    /// The output format of the frozen dependencies. Defaults to `toml`.
+    #[clap(
+        long,
+        default_value = "toml",
+        help = "The output format of the frozen dependencies"
+    )]
+    pub format: OutputFormat,
+}
+
+fn validate_version(value: &str) -> Result<String, String> {
+    match value {
+        "1" | "latest" => Ok("1".to_owned()), // also convert 'latest' into '1'
+
+        #[cfg(debug_assertions)]
+        "0" => Ok("0".to_owned()),
+
+        _ => Err("Invalid version. Only '1' and 'latest' are supported.".to_owned()),
+    }
+}
+
+/// Options for the thaw command.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
+pub struct ThawOptions {
+    /// The filename of the lockfile to use. Defaults to `uvenv.lock`.
+    #[clap(
+        long,
+        default_value = "uvenv.lock",
+        help = "The filename of the lockfile to use"
+    )]
+    pub filename: String,
+    /// A list of dependencies to include when thawing. Conflicts with `exclude`.
+    #[clap(
+        long,
+        conflicts_with = "exclude",
+        help = "A list of dependencies to include when thawing"
+    )]
+    pub include: Vec<String>,
+    /// A list of dependencies to exclude when thawing. Conflicts with `include`.
+    #[clap(
+        long,
+        conflicts_with = "include",
+        help = "A list of dependencies to exclude when thawing"
+    )]
+    pub exclude: Vec<String>,
+    /// Whether to remove the whole current environment before thawing. Defaults to `false`.
+    #[clap(
+        long,
+        default_value = "false",
+        help = "Remove the current environment before thawing",
+        conflicts_with = "skip_current"
+    )]
+    pub remove_current: bool,
+    /// Whether to overwrite existing dependencies when thawing. Defaults to `true`.
+    #[clap(
+        long,
+        default_value = "false",
+        help = "Don't overwrite existing dependencies when thawing",
+        conflicts_with = "remove_current"
+    )]
+    pub skip_current: bool,
+
+    #[clap(
+        long,
+        default_value = "frozen",
+        help = "Which version of Python to use when thawing. [Options: frozen (default; use versions defined in lockfile), ignore (use default Python), <version> (specific Python version, e.g. 3.12, python3.12)]"
+    )]
+    pub python: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
 pub struct EnsurepathOptions {
     #[clap(long, short, help = "Force update")]
@@ -320,7 +490,7 @@ pub enum Commands {
     UpgradeAll(UpgradeAllOptions),
     #[clap(aliases = &["delete", "remove", "rm"], about = "Uninstall a package (by pip name).")]
     Uninstall(UninstallOptions),
-    #[clap(about = "Uninstall all uvenv-installed packages.")]
+    #[clap(aliases = &["remove-all", "delete-all"], about = "Uninstall all uvenv-installed packages.")]
     UninstallAll(UninstallAllOptions),
     #[clap(
         about = "Uninstall a package (by pip name) and re-install from the original spec (unless a new spec is supplied)."
@@ -343,21 +513,22 @@ pub enum Commands {
     Runpip(RunpipOptions),
     #[clap(about = "Run 'python' in the right venv.")]
     Runpython(RunpythonOptions),
+
+    #[clap(about = "Create a lock file of all installed apps, which can be reinstalled via `thaw`")]
+    Freeze(FreezeOptions),
+
+    #[clap(about = "Install applications from a lockfile (usually `uvenv.lock`)")]
+    Thaw(ThawOptions),
+
     #[clap(
         about = "Update ~/.bashrc (or ~/.zshrc) with a PATH that includes the local bin directory that uvenv uses."
     )]
     Ensurepath(EnsurepathOptions),
     #[clap(about = "Use --install to install the autocomplete script (bash).")]
     Completions(CompletionsOptions),
-
     #[clap(subcommand, about = "Manage uvenv itself.")]
     Self_(SelfCommands),
 }
-
-// todo `uvenv check`:
-//   - show missing metadata
-//   - show packages with updates
-//   - show packages with script issues
 
 impl Process for Commands {
     async fn process(self) -> anyhow::Result<i32> {
@@ -380,6 +551,8 @@ impl Process for Commands {
             Self::Completions(opts) => opts.process().await,
             Self::Run(opts) => opts.process().await,
             Self::Setup(opts) => opts.process().await,
+            Self::Freeze(opts) => opts.process().await,
+            Self::Thaw(opts) => opts.process().await,
             Self::Create(opts) => opts.process().await,
             Self::Self_(opts) => opts.process().await,
             Self::Check(opts) => opts.process().await,

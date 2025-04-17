@@ -12,7 +12,7 @@ use uv_python::PythonEnvironment;
 /// Create a new virtualenv via `uv venv` at a Path
 pub async fn create_venv_raw(
     venv_path: &Path,
-    python: Option<&String>,
+    python: Option<&str>,
     force: bool,
     with_pip: bool,
 ) -> anyhow::Result<()> {
@@ -46,7 +46,7 @@ pub async fn create_venv_raw(
 /// Create a new virtualenv from a parsed `PackageName`.
 pub async fn create_venv(
     package_name: &PackageName,
-    python: Option<&String>,
+    python: Option<&str>,
     force: bool,
     with_pip: bool,
     custom_prefix: Option<String>,
