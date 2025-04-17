@@ -2,6 +2,11 @@
 
 <!--next-version-placeholder-->
 
+## 3.8.1 (2025-04-17)
+
+### Fix
+
+* include `LockfileV0` in outside of `debug_assertions` so `--release` properly builds again.
 
 ## 3.8.0 (2025-04-17)
 
