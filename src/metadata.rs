@@ -661,18 +661,45 @@ pub async fn serialize_msgpack<T: serde::Serialize>(metadata: &T) -> anyhow::Res
     Ok(bytes)
 }
 
+/// Atomically writes the given bytes to the specified file.
+///
+/// This function first writes to `<filename>.tmp`, then renames it to `filename`.
+/// This approach prevents data loss from incomplete writes, as the original file is
+/// not modified until the entire write succeeds.
+///
+/// If any step fails, the temporary file is removed to avoid clutter.
+pub async fn atomic_write<P: AsRef<Path>>(
+    filename: P,
+    bytes: &[u8],
+) -> anyhow::Result<()> {
+    let tmp_filename = filename.as_ref().with_extension("tmp");
+
+    // Attempt to write and rename, cleaning up the temp file on error
+    let result = async {
+        let mut file = File::create(&tmp_filename).await?;
+        file.write_all(bytes).await?;
+        file.flush().await?;
+
+        tokio::fs::rename(&tmp_filename, filename).await?;
+
+        Ok(())
+    }
+    .await;
+
+    // Clean up tmp file if something went wrong
+    if result.is_err() {
+        let _ = tokio::fs::remove_file(&tmp_filename).await;
+    }
+
+    result
+}
+
 pub async fn store_generic_msgpack<T: serde::Serialize>(
     filename: &Path,
     metadata: &T,
 ) -> anyhow::Result<()> {
-    // Open the msgpack file
-    let mut file = File::create(filename).await?;
-
     let bytes = serialize_msgpack(metadata).await?;
-
-    file.write_all(&bytes).await?;
-
-    Ok(())
+    atomic_write(filename, &bytes).await
 }
 
 pub async fn store_metadata(

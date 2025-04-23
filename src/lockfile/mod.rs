@@ -1,5 +1,5 @@
 use crate::cli::{FreezeOptions, OutputFormat};
-use crate::metadata::Metadata;
+use crate::metadata::{Metadata, atomic_write};
 use anyhow::anyhow;
 use core::fmt::Debug;
 use owo_colors::OwoColorize;
@@ -7,8 +7,6 @@ use regex::Regex;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::collections::BTreeMap;
-use tokio::fs::File;
-use tokio::io::AsyncWriteExt;
 
 pub mod v0;
 pub mod v1;
@@ -41,8 +39,7 @@ trait Lockfile<'de, P: PackageSpec + From<Metadata> + Debug + Serialize> {
 
         let serialized = self.serialize_and_patch(options).await?;
 
-        let mut file = File::create(filename).await?;
-        file.write_all(&serialized).await?;
+        atomic_write(filename, &serialized).await?;
 
         eprintln!(
             "Saved {} to {}.",

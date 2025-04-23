@@ -28,7 +28,7 @@ pub async fn append(
     let mut file = OpenOptions::new().append(true).open(file_path).await?;
 
     file.write_all(text.as_bytes()).await?;
-
+    file.flush().await?;
     Ok(())
 }
 
