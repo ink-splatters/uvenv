@@ -13,6 +13,7 @@ curl -fsSL https://raw.githubusercontent.com/robinvandernoord/uvenv/uvenv/instal
 
 # run it:
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/robinvandernoord/uvenv/uvenv/install.sh)"
+# instead of `bash`, you can also use `sh`, `zsh` or "$SHELL"
 ```
 
 
