@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## 3.8.4 (2025-04-23)
+
+### Fixes
+
+* use atomic file writes to prevent metadata disappearing
+
 ## 3.8.3 (2025-04-23)
 
 ### Fixes
