@@ -2,6 +2,21 @@
 
 <!--next-version-placeholder-->
 
+## 3.8.2 (2025-04-23)
+
+### Fixes
+
+* improved metadata check for self-install via installation script (`install.sh`)
+    * fixes `Metadata for 'uvenv' could not be loaded.`
+
+### Updates
+
+* bump to uv 0.6.16
+
+### Docs
+
+* Add install script and recommend it if global `pip` install isn't possible (e.g. Ubuntu 24.04)  in docs
+
 ## 3.8.1 (2025-04-17)
 
 ### Fix
