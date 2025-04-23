@@ -9,10 +9,10 @@ The easiest way to install `uvenv` is to use the [`install.sh`](https://github.c
 
 ```bash
 # download/read the script:
-curl -fsSL https://raw.githubusercontent.com/robinvandernoord/uvenv/install-script/install.sh
+curl -fsSL https://raw.githubusercontent.com/robinvandernoord/uvenv/uvenv/install.sh
 
 # run it:
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/robinvandernoord/uvenv/install-script/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/robinvandernoord/uvenv/uvenv/install.sh)"
 ```
 
 
