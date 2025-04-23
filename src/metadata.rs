@@ -2,7 +2,6 @@ use crate::commands::self_update::extract_version;
 use crate::pypi::get_latest_version;
 use crate::symlinks::check_symlink;
 use crate::uv::{Helpers, PythonSpecifier, uv_freeze, uv_get_installed_version, uv_venv};
-use anyhow::anyhow;
 use core::cmp::Ordering;
 use core::fmt::Write;
 use core::str::FromStr;
@@ -214,14 +213,14 @@ impl Metadata {
         }
     }
 
-    /// When using uvenv's install.sh, the installation is done via bash
-    /// so the metadata msgpack is not stored. This function works as a fallback.
-    fn for_self_install() -> Self {
-        Self {
-            name: "uvenv".to_owned(),
-            ..Default::default()
-        }
-    }
+    // /// When using uvenv's install.sh, the installation is done via bash
+    // /// so the metadata msgpack is not stored. This function works as a fallback.
+    // fn for_self_install() -> Self {
+    //     Self {
+    //         name: "uvenv".to_owned(),
+    //         ..Default::default()
+    //     }
+    // }
 
     /// return `PythonEnvironment` (if available) for this metadata
     pub fn venv(&self) -> Option<PythonEnvironment> {
@@ -313,7 +312,7 @@ impl Metadata {
     pub async fn for_owned_dir(
         dirname: PathBuf,
         config: &LoadMetadataConfig,
-    ) -> anyhow::Result<Self> {
+    ) -> Option<Self> {
         let meta_path = dirname.join(".metadata");
 
         Self::for_file(&meta_path, config).await.map_or_else(
@@ -323,17 +322,14 @@ impl Metadata {
                     .and_then(|fname| fname.to_str())
                     .unwrap_or_default();
 
-                if venv_name == "uvenv" {
-                    // special case for uvenv itself
-                    Ok(Self::for_self_install())
-                } else {
-                    Err(anyhow!(
-                        "Metadata for '{}' could not be loaded.",
-                        venv_name.red()
-                    ))
+                if venv_name != "uvenv" {
+                    // exception case for uvenv itself
+                    eprintln!("Metadata for '{}' could not be loaded.", venv_name.red());
                 }
+
+                None
             },
-            Ok,
+            Some,
         )
     }
 

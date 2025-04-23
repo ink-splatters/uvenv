@@ -1,11 +1,11 @@
-use std::fs::ReadDir;
-
+use futures::future;
+use itertools::Itertools;
 use owo_colors::OwoColorize;
+use std::fs::ReadDir;
 
 use crate::cli::{ListOptions, Process};
 use crate::commands::self_info::{is_latest, uvenv_version};
 use crate::metadata::{LoadMetadataConfig, Metadata, get_venv_dir};
-use crate::promises::handle_promises;
 use crate::pypi::get_latest_version;
 use crate::uv::uv_search_python;
 
@@ -29,7 +29,12 @@ async fn read_from_folder_filtered(
         );
     }
 
-    handle_promises(promises).await
+    future::join_all(promises)
+        .await
+        .into_iter()
+        .flatten()
+        .sorted()
+        .collect()
 }
 
 impl ListOptions {

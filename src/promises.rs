@@ -2,6 +2,7 @@ use crate::helpers::fmt_error;
 use core::future::Future;
 use futures::future;
 
+#[expect(dead_code, reason = "May be useful again in the future")]
 pub async fn handle_promises<T, F: Future<Output = anyhow::Result<T>>>(promises: Vec<F>) -> Vec<T> {
     future::join_all(promises)
         .await
