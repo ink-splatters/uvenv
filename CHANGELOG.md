@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## 3.8.3 (2025-04-23)
+
+### Fixes
+
+* sort alphabetically on `uvenv list`
+    + pt2 improved metadata check for (self) install via installation script (ignore instead of fill with empty
+      metadata -> `remove_all` won't self-remove)
+
 ## 3.8.2 (2025-04-23)
 
 ### Fixes
