@@ -35,16 +35,13 @@ pub async fn upgrade_all(
 
 impl Process for UpgradeAllOptions {
     async fn process(self) -> anyhow::Result<i32> {
-        match upgrade_all(
+        upgrade_all(
             self.force,
             self.no_cache,
             self.skip_injected,
             &self.venv_names,
         )
         .await
-        {
-            Ok(()) => Ok(0),
-            Err(msg) => Err(msg),
-        }
+        .map(|()| 0)
     }
 }

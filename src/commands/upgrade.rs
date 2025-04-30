@@ -1,10 +1,12 @@
-use anyhow::Context;
+use anyhow::bail;
 use core::fmt::Write;
 use itertools::Itertools;
 use owo_colors::OwoColorize;
 use uv_pep508::Requirement;
 use uv_python::PythonEnvironment;
 
+use crate::commands::list::list_packages;
+use crate::commands::upgrade_all::upgrade_all;
 use crate::helpers::StringExt;
 use crate::metadata::LoadMetadataConfig;
 use crate::venv::setup_environ_from_requirement;
@@ -164,26 +166,43 @@ pub async fn upgrade_package(
     .await
 }
 
+async fn find_outdated() -> Vec<String> {
+    let config = LoadMetadataConfig {
+        recheck_scripts: false,
+        updates_check: true,
+        updates_prereleases: false,
+        updates_ignore_constraints: false,
+    };
+
+    let packages_info = list_packages(&config, None, None).await.unwrap_or_default();
+
+    packages_info
+        .into_iter()
+        .filter_map(|meta| meta.outdated.then_some(meta.name))
+        .collect()
+}
+
 impl Process for UpgradeOptions {
     async fn process(self) -> anyhow::Result<i32> {
-        match upgrade_package(
-            &self.package_name,
+        let package_names = if self.package_names.is_empty() {
+            let outdated = find_outdated().await;
+
+            if outdated.is_empty() {
+                bail!("{}", "No packages are outdated.".blue());
+            }
+
+            outdated
+        } else {
+            self.package_names
+        };
+
+        upgrade_all(
             self.force,
             self.no_cache,
             self.skip_injected,
+            &package_names,
         )
         .await
-        {
-            Ok(msg) => {
-                println!("{msg}");
-                Ok(0)
-            },
-            Err(msg) => Err(msg).with_context(|| {
-                format!(
-                    "Something went wrong trying to upgrade '{}';",
-                    &self.package_name
-                )
-            }),
-        }
+        .map(|()| 0)
     }
 }

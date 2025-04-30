@@ -139,7 +139,7 @@ pub struct ActivateOptions {
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
 pub struct UpgradeOptions {
-    pub package_name: String,
+    pub package_names: Vec<String>,
     #[clap(short = 'f', long, help = "Ignore previous version constraint")]
     pub force: bool,
     #[clap(long, help = "Don't also upgrade injected packages")]
