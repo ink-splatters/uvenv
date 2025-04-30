@@ -2,6 +2,22 @@
 
 <!--next-version-placeholder-->
 
+## 3.9.0 (2025-04-30)
+
+### Features
+
+* `uvenv upgrade` now supports a dynamic amount of packages:
+  - `uvenv upgrade <package>` like before
+  - `uvenv upgrade` will upgrade all outdated packages
+  - `uvenv upgrade <package1> <package2> ...` to upgrade multiple
+    
+  + use `uvenv upgrade-all` to upgrade all packages without checking for oudated
+
+
+### Updates
+
+* bump to uv 0.7.0
+
 ## 3.8.4 (2025-04-23)
 
 ### Fixes
