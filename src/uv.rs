@@ -17,9 +17,8 @@ use uv_python::{
     PythonPreference, PythonRequest,
 };
 
-use uv_pep508::VersionOrUrl::VersionSpecifier;
-
 use crate::helpers::PathToString;
+use uv_pep508::VersionOrUrl::VersionSpecifier;
 
 pub async fn maybe_get_uv_binary() -> Option<String> {
     find_sibling("uv").await.map(PathToString::to_string)
@@ -32,7 +31,8 @@ pub async fn get_uv_binary() -> String {
     )
 }
 
-/// Start `uv` in a subprocess and handle its output
+/// Start `uv` in a subprocess and handle its output.
+/// If you want to run `uv pip`, use `uv_pip` instead.
 /// Note: while `uv::main` exists, it's not recommended to use as an entrypoint.
 /// It also calls `exit`, stopping `uvenv` instead of returning an exit code.
 pub async fn uv<S: AsRef<OsStr>>(args: &[S]) -> anyhow::Result<bool> {
@@ -45,9 +45,21 @@ pub async fn uv<S: AsRef<OsStr>>(args: &[S]) -> anyhow::Result<bool> {
         .as_ref()
         .to_str()
         .unwrap_or_default(); // cursed but makes it work with both &str and String
+
     let err_prefix = format!("uv {subcommand}");
 
     run(&script, args, Some(err_prefix)).await
+}
+
+/// Start `uv pip` in a subprocess and handle its output
+/// Note: this adds `--no-config` which prevents looking at local pyproject.toml
+pub async fn uv_pip<S: AsRef<OsStr>>(args: &[S]) -> anyhow::Result<bool> {
+    // run `uv pip --no-config ...`
+    let mut final_args: Vec<&OsStr> = vec![OsStr::new("pip"), OsStr::new("--no-config")];
+    let eject_args: Vec<_> = args.iter().map(AsRef::as_ref).collect();
+    final_args.extend(eject_args);
+
+    uv(&final_args).await
 }
 
 pub async fn uv_with_output<S: AsRef<OsStr>>(args: &[S]) -> anyhow::Result<i32> {

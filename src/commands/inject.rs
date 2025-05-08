@@ -1,9 +1,10 @@
 use crate::metadata::LoadMetadataConfig;
+use crate::uv::uv_pip;
 use crate::{
     animate::{AnimationSettings, show_loading_indicator},
     cli::{InjectOptions, Process},
     metadata::Metadata,
-    uv::{Helpers, uv},
+    uv::Helpers,
     venv::setup_environ_from_requirement,
 };
 use anyhow::Context;
@@ -18,7 +19,7 @@ pub async fn inject_package<S: AsRef<str> + Display>(
     let (requirement, environ) = setup_environ_from_requirement(venv_spec).await?;
     let mut metadata = Metadata::for_requirement(&requirement, &LoadMetadataConfig::none()).await;
 
-    let mut args = vec!["pip", "install"];
+    let mut args = vec!["install"];
 
     if no_cache {
         args.push("--no-cache");
@@ -28,7 +29,7 @@ pub async fn inject_package<S: AsRef<str> + Display>(
     let to_inject_specs_vec: Vec<&str> = to_inject_specs.iter().map(AsRef::as_ref).collect();
     args.extend(&to_inject_specs_vec);
 
-    let promise = uv(&args);
+    let promise = uv_pip(&args);
 
     let to_inject_str = &to_inject_specs_vec.join(", ");
     show_loading_indicator(

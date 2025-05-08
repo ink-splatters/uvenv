@@ -9,12 +9,13 @@ use crate::commands::list::list_packages;
 use crate::commands::upgrade_all::upgrade_all;
 use crate::helpers::StringExt;
 use crate::metadata::LoadMetadataConfig;
+use crate::uv::uv_pip;
 use crate::venv::setup_environ_from_requirement;
 use crate::{
     animate::{AnimationSettings, show_loading_indicator},
     cli::{Process, UpgradeOptions},
     metadata::Metadata,
-    uv::{ExtractInfo, Helpers, uv, uv_get_installed_version},
+    uv::{ExtractInfo, Helpers, uv_get_installed_version},
 };
 
 pub async fn update_metadata(
@@ -92,7 +93,7 @@ pub async fn upgrade_package_from_requirement(
 ) -> anyhow::Result<String> {
     let old_version = metadata.installed_version.clone();
 
-    let mut args = vec!["pip", "install", "--upgrade"];
+    let mut args = vec!["install", "--upgrade"];
 
     if force || no_cache {
         args.push("--no-cache");
@@ -124,7 +125,7 @@ pub async fn upgrade_package_from_requirement(
         args.extend(metadata.vec_injected());
     }
 
-    let promise = uv(&args);
+    let promise = uv_pip(&args);
 
     show_loading_indicator(
         promise,
