@@ -129,6 +129,7 @@ pub async fn uv_search_python(python: Option<&str>) -> Option<String> {
         None,
         None,
         None,
+        None,
     )
     .await
     .ok()?;
