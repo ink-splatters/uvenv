@@ -2,6 +2,21 @@
 
 <!--next-version-placeholder-->
 
+## 3.9.1 (2025-05-08)
+
+### Fixes
+
+* pass `--no-config` to `uv` to prevent looking at local `pyproject.toml` files
+
+### Snapcraft
+
+* use $SNAP (`~/snap/uvenv/<revision>`) as workdir 
+  (no need using `.local/uvenv` if the files are already scoped to uvenv)
+
+### Updates
+
+* bump to uv 0.7.3
+
 ## 3.9.0 (2025-04-30)
 
 ### Features
