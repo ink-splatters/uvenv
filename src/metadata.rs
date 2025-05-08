@@ -17,8 +17,6 @@ use uv_pep440::{Version, VersionSpecifier};
 use uv_pep508::Requirement;
 use uv_python::PythonEnvironment;
 
-const BIN_DIR: &str = ".local/bin";
-const WORK_DIR: &str = ".local/uvenv";
 const INDENT: &str = "    ";
 
 // tells 'file' that a .metadata file is 'data' (instead of making it guess)
@@ -31,13 +29,13 @@ pub fn get_home_dir() -> PathBuf {
 }
 
 pub fn get_bin_dir() -> PathBuf {
+    let home_dir = get_home_dir();
+
     if cfg!(feature = "snap") {
-        // $SNAP/usr/local/bin
-        PathBuf::from("/usr/local/bin")
-    }
-    else {
-        let home_dir = get_home_dir();
-        home_dir.join(BIN_DIR)
+        // $SNAP/bin, which exists in snap's $PATH
+        home_dir.join("bin")
+    } else {
+        home_dir.join(".local/bin")
     }
 }
 
@@ -54,7 +52,12 @@ pub async fn ensure_bin_dir() -> PathBuf {
 
 pub fn get_work_dir() -> PathBuf {
     let home_dir = get_home_dir();
-    home_dir.join(WORK_DIR)
+    if cfg!(feature = "snap") {
+        // on snap, store everything in the 'home' dir because that's scoped to the snap
+        home_dir
+    } else {
+        home_dir.join(".local/uvenv")
+    }
 }
 
 pub fn get_venv_dir() -> PathBuf {
