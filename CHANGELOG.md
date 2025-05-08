@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## 3.9.2 (2025-05-08)
+
+### Minor Enhancements
+
+* nicer display for `self info`. Defaults to `fancy` with options for `basic`, `toml` and `json`
+* github action: split wheel builds into one job per target for better parallelism
+
 ## 3.9.1 (2025-05-08)
 
 ### Fixes
