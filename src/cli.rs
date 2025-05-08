@@ -582,7 +582,19 @@ pub struct SelfChangelogOptions;
 pub struct SelfMigrateOptions;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
-pub struct SelfInfoOptions;
+pub struct SelfInfoOptions {
+    #[clap(long, default_value = "true", help = "Show info about uvenv in a colored format (default)", conflicts_with_all = ["simple", "json", "toml"])]
+    pub fancy: bool,
+
+    #[clap(short, long, help = "Show info about uvenv in a basic format", conflicts_with_all = ["fancy", "json", "toml"])]
+    pub simple: bool,
+
+    #[clap(short, long, help = "Show info about uvenv in JSON format", conflicts_with_all = ["fancy", "simple", "toml"])]
+    pub json: bool,
+
+    #[clap(short, long, help = "Show info about uvenv in TOML format", conflicts_with_all = ["fancy", "simple", "json"])]
+    pub toml: bool,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Parser)]
 pub struct SelfVersionOptions;
