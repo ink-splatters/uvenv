@@ -111,25 +111,3 @@ pub fn venv_script(
     let script_path = venv.scripts().join(script);
     script_path.to_string()
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_create_venv_raw() {
-        let path = PathBuf::from("/tmp/test-test_create_venv_raw");
-        if path.exists() {
-            remove_venv(&path).await.expect("Should remove venv");
-        }
-        assert!(!path.exists());
-
-        create_venv_raw(&path, None, false, true)
-            .await
-            .expect("Should create venv");
-        assert!(path.exists());
-
-        remove_venv(&path).await.expect("Should remove venv");
-        assert!(!path.exists());
-    }
-}

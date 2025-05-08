@@ -9,7 +9,6 @@ use itertools::Itertools;
 use owo_colors::OwoColorize;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
-use std::fs::remove_dir_all;
 use std::path::{Path, PathBuf};
 use tokio::fs::{File, create_dir_all};
 use tokio::io::AsyncReadExt;
@@ -27,22 +26,19 @@ const INDENT: &str = "    ";
 const MAGIC_HEADER_V2: &[u8] = &[0x55, 0x56, 0x58, 0x01, 0x32, 0x04, 0x00]; // hex, 7 bytes
 
 pub fn get_home_dir() -> PathBuf {
-    #[expect(clippy::dbg_macro, reason = "Testing purposes")]
-    if cfg!(test) {
-        let test_dir = std::env::temp_dir().join("uvenv-test");
-        // fixme:
-        let _ = dbg!(remove_dir_all(&test_dir));
-        let _ = dbg!(std::fs::create_dir_all(&test_dir));
-        test_dir
-    } else {
-        // if snap: $HOME is now ~/snap/uvenv/<revision>/
-        home::home_dir().expect("Failed to get home directory")
-    }
+    // if snap: $HOME is now ~/snap/uvenv/<revision>/
+    home::home_dir().expect("Failed to get home directory")
 }
 
 pub fn get_bin_dir() -> PathBuf {
-    let home_dir = get_home_dir();
-    home_dir.join(BIN_DIR)
+    if cfg!(feature = "snap") {
+        // $SNAP/usr/local/bin
+        PathBuf::from("/usr/local/bin")
+    }
+    else {
+        let home_dir = get_home_dir();
+        home_dir.join(BIN_DIR)
+    }
 }
 
 pub async fn ensure_bin_dir() -> PathBuf {
