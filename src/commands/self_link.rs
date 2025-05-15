@@ -29,9 +29,13 @@ pub async fn self_link(
         // still exit with code > 0
         Ok(2) // missing -f
     } else {
-        symlink(&current, &uvenv)
-            .await
-            .with_context(|| format!("Failed to create symlink {:?} -> {:?}", &uvenv, &current))?;
+        symlink(&current, &uvenv).await.with_context(|| {
+            format!(
+                "Failed to create symlink {} -> {}",
+                uvenv.display(),
+                current.display()
+            )
+        })?;
 
         Ok(0)
     }

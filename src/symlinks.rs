@@ -119,7 +119,7 @@ pub async fn create_symlink(
 
         tokio::fs::remove_file(&target_path)
             .await
-            .with_context(|| format!("Failed to create symlink {:?}", &target_path))?;
+            .with_context(|| format!("Failed to create symlink {}", target_path.display()))?;
     }
 
     let symlink_path = venv.join("bin").join(symlink);
@@ -129,7 +129,7 @@ pub async fn create_symlink(
 
     tokio::fs::symlink(&symlink_path, &target_path)
         .await
-        .with_context(|| format!("Failed to create symlink {:?}", &target_path))?;
+        .with_context(|| format!("Failed to create symlink {}", target_path.display()))?;
 
     Ok(true)
 }

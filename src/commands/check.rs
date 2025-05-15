@@ -54,7 +54,7 @@ impl Issues<'_> {
     }
 
     #[expect(clippy::as_conversions, reason = "The number won't be that big")]
-    pub fn count_outdated(&self) -> i32 {
+    pub const fn count_outdated(&self) -> i32 {
         self.outdated.len() as i32
     }
     #[expect(clippy::as_conversions, reason = "The number won't be that big")]
