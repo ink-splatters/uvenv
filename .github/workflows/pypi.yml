@@ -20,6 +20,7 @@ jobs:
           python-version: '3.11'
       - uses: astral-sh/setup-uv@v5
       - run: uv pip install maturin[zig]
+      - run: rustup update
       - run: maturin build --release --strip --target x86_64-unknown-linux-gnu --zig
       - uses: actions/upload-artifact@v4
         with:
@@ -37,6 +38,7 @@ jobs:
       - run: uv pip install maturin[zig]
       - run: |
           rustup target add x86_64-unknown-linux-musl
+          rustup update
           maturin build --release --strip --target x86_64-unknown-linux-musl --zig
       - uses: actions/upload-artifact@v4
         with:
@@ -52,6 +54,7 @@ jobs:
           python-version: '3.11'
       - uses: astral-sh/setup-uv@v5
       - run: uv pip install maturin
+      - run: rustup update
       - run: maturin build --release --strip --target x86_64-apple-darwin
       - uses: actions/upload-artifact@v4
         with:
@@ -67,6 +70,7 @@ jobs:
           python-version: '3.11'
       - uses: astral-sh/setup-uv@v5
       - run: uv pip install maturin[zig]
+      - run: rustup update
       - run: maturin build --release --strip --target aarch64-unknown-linux-gnu --zig
       - uses: actions/upload-artifact@v4
         with:
@@ -84,6 +88,7 @@ jobs:
       - run: uv pip install maturin[zig]
       - run: |
           rustup target add aarch64-unknown-linux-musl
+          rustup update
           maturin build --release --strip --target aarch64-unknown-linux-musl --zig
       - uses: actions/upload-artifact@v4
         with:
@@ -99,6 +104,7 @@ jobs:
           python-version: '3.11'
       - uses: astral-sh/setup-uv@v5
       - run: uv pip install maturin
+      - run: rustup update
       - run: maturin build --release --strip --target aarch64-apple-darwin
       - uses: actions/upload-artifact@v4
         with:

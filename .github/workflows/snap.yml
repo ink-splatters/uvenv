@@ -28,7 +28,9 @@ jobs:
           uv pip install maturin[zig] uv
 
       - name: Build release
-        run: cargo build --release --features snap
+        run: |
+          rustup update
+          cargo build --release --features snap
 
       - name: Copy uv
         run: cp ./venv/bin/uv target/release/uv
