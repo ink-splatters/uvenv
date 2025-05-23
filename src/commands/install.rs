@@ -4,7 +4,7 @@ use crate::cli::{InstallOptions, Process};
 use crate::metadata::Metadata;
 use crate::pip::parse_requirement;
 use crate::symlinks::{create_symlink, find_symlinks};
-use crate::uv::{ExtractInfo, Helpers, uv_get_installed_version, uv_pip};
+use crate::uv::{ExtractInfo, Helpers, uv, uv_get_installed_version};
 use crate::venv::{activate_venv, create_venv, remove_venv};
 
 use core::fmt::Display;
@@ -24,7 +24,7 @@ pub async fn uv_install_package<S: AsRef<str>>(
     force: bool,
     editable: bool,
 ) -> anyhow::Result<bool> {
-    let mut args: Vec<&str> = vec!["install"];
+    let mut args: Vec<&str> = vec!["pip", "install"];
 
     if !inject.is_empty() {
         args.append(&mut inject.iter().map(AsRef::as_ref).collect());
@@ -40,7 +40,7 @@ pub async fn uv_install_package<S: AsRef<str>>(
     }
     args.push(package_name);
 
-    let promise = uv_pip(&args);
+    let promise = uv(&args);
 
     show_loading_indicator(
         promise,

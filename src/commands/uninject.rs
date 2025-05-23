@@ -6,7 +6,7 @@ use anyhow::anyhow;
 use itertools::Itertools;
 use owo_colors::OwoColorize;
 
-use crate::uv::{Helpers, uv_pip};
+use crate::uv::{Helpers, uv};
 
 pub async fn eject_package(
     from: &str,
@@ -15,12 +15,12 @@ pub async fn eject_package(
     let (requirement, environ) = setup_environ_from_requirement(from).await?;
     let mut metadata = Metadata::for_requirement(&requirement, &LoadMetadataConfig::none()).await;
 
-    let mut args = vec!["uninstall"];
+    let mut args = vec!["pip", "uninstall"];
 
     let eject_args: Vec<&str> = to_eject_specs.iter().map(AsRef::as_ref).collect();
     args.extend(eject_args);
 
-    let promise = uv_pip(&args);
+    let promise = uv(&args);
 
     let to_eject_str = &to_eject_specs.iter().map(|it| it.green()).join(", ");
     show_loading_indicator(
