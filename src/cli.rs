@@ -484,7 +484,7 @@ pub enum Commands {
     Create(CreateOptions),
     #[clap(about = "Activate a uvenv-managed virtualenv (bash only)")]
     Activate(ActivateOptions),
-    #[clap(aliases=["u"], about = "Upgrade a package.")]
+    #[clap(aliases=["u", "update"], about = "Upgrade a package.")]
     Upgrade(UpgradeOptions),
     #[clap(about = "Upgrade all uvenv-installed packages.")]
     UpgradeAll(UpgradeAllOptions),
