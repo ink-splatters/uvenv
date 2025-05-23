@@ -2,6 +2,22 @@
 
 <!--next-version-placeholder-->
 
+## 3.9.4 (2025-05-23)
+
+### Minor Enhancements
+
+* add `update` as alias for `upgrade`
+
+### Updates
+
+* update uv dependencies to 0.7.7
+
+## 3.9.3 (2025-05-23)
+
+### Updates
+
+* update uv dependencies to 0.7.6
+
 ## 3.9.2 (2025-05-08)
 
 ### Minor Enhancements
