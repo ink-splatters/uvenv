@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## 3.9.5 (2025-05-23)
+
+### Fixes
+
+* use `UV_NO_CONFIG=1` instead of `--no-config` for every `uv` command
+
 ## 3.9.4 (2025-05-23)
 
 ### Minor Enhancements
@@ -12,7 +18,7 @@
 
 * update uv dependencies to 0.7.7
 
-## 3.9.3 (2025-05-23)
+## 3.9.3 (2025-05-21)
 
 ### Updates
 
