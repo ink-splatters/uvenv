@@ -19,7 +19,7 @@ use uv_python::{
 
 use uv_pep508::VersionOrUrl::VersionSpecifier;
 
-use crate::helpers::PathToString;
+use crate::helpers::{PathToString, set_env_var};
 
 pub async fn maybe_get_uv_binary() -> Option<String> {
     find_sibling("uv").await.map(PathToString::to_string)
@@ -46,6 +46,8 @@ pub async fn uv<S: AsRef<OsStr>>(args: &[S]) -> anyhow::Result<bool> {
         .to_str()
         .unwrap_or_default(); // cursed but makes it work with both &str and String
     let err_prefix = format!("uv {subcommand}");
+
+    set_env_var("UV_NO_CONFIG", "1");
 
     run(&script, args, Some(err_prefix)).await
 }
