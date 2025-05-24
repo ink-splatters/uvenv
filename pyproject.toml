@@ -45,4 +45,4 @@ dev = [
 bindings = "bin"
 
 [tool.uv.workspace]
-members = ["src/*"]
+members = ["uvenv"]

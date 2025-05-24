@@ -37,6 +37,7 @@
       systems = import inputs.systems;
     in {
       inherit systems;
+      debug = true;
       perSystem = {
         inputs',
         lib,
@@ -46,7 +47,11 @@
         ...
       }: let
         inherit (inputs'.fenix.packages.minimal) toolchain;
-        craneLib = (inputs.crane.mkLib pkgs).overrideToolchain toolchain;
+        
+        inherit (pkgs.llvmPackages_latest) stdenv bintools clang;
+
+        craneLib = (inputs.crane.mkLib pkgs).overrideToolchain 
+          (toolchain.override { inherit stdenv; });
 
         src = craneLib.cleanCargoSource ./.;
 
@@ -59,12 +64,14 @@
           ];
         };
 
+        
+
         cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-        uvenv = craneLib.buildPackage (commonArgs
+        uvenv = (craneLib.buildPackage (commonArgs
           // {
             inherit cargoArtifacts;
             doCheck = false;
-          });
+          }));
       in {
         checks = {
           inherit uvenv;
@@ -95,8 +102,10 @@
           checks = self'.checks;
           packages = [
             toolchain
-            pkgs.maturin
+            # pkgs.maturin
             pkgs.uv
+            clang
+            bintools
           ];
         };
       };
