@@ -98,18 +98,33 @@ uvenv freeze --help
 uvenv thaw --help
 ```
 
+## Migrating from `uvx` and Comparing with `uv tool`
 
-## Migration from `uvx`
-> **Note:** The tool previously named `uvx` is now `uvenv` due to a naming collision with a new `uv` command. The new name
-> better reflects its purpose, combining `uv` with `venv`.  
-> You can run `uvenv self migrate` to move your environments and installed commands from `uvx` to `uvenv`.
+### Migrating from `uvx`
+
+The tool previously named `uvx` is now `uvenv` due to a naming collision with a new `uv` command. The new name better reflects its purpose, combining `uv` with `venv`.
+You can run `uvenv self migrate` to move your environments and installed commands from `uvx` to `uvenv`.
+
+---
+
+### How `uvenv` differs from `uv tool`
+
+While both `uvenv` and `uv tool` (a subcommand of [`uv`](https://github.com/astral-sh/uv)) offer overlapping functionality for installing and running Python applications, they differ in purpose and approach:
+
+* **Interface:** `uvenv` is modeled after `pipx`, offering commands like `install`, `inject`, `run`, `upgrade`, and `runpip`. If you're already used to `pipx`, `uvenv` is a near drop-in replacement.
+* **Inject support:** `uvenv` supports `pipx`'s `inject` functionality, which lets you add extra packages to an app’s environment — helpful for plugins, linters, or testing tools. `uv tool` does not currently support this.
+* **Compatibility:** `uvenv` uses `uv` for dependency resolution and installation, benefiting from its speed and correctness. It also respects `uv`'s configuration files (such as `~/.config/uv/uv.toml` and `/etc/uv/uv.toml`, see [uv config docs](https://docs.astral.sh/uv/configuration/files/)) unless the environment variable `UV_NO_CONFIG=1` is set to ignore them.
+
+In short:
+
+* Use **`uvenv`** if you want `pipx`-style workflows with advanced management features.
+* Use **`uv tool`** if you prefer a minimal approach for running tools quickly - for most basic use-cases, `uv tool` is probably sufficient.
 
 
 ## Platform Considerations
 
 - **Rust-Powered Performance (uvenv 2.0):** Starting from version 2.0, `uvenv` leverages Rust for improved performance
-  and
-  compatibility with `uv`.
+  and compatibility with `uv`.
 - **Prebuilt Binaries:** Currently, prebuilt binaries are available for x86_64 (amd64) and aarch64 (ARM64) on Linux, as well as Intel (x86_64) and Apple Silicon (ARM64) on macOS.
 - **Other Platforms:** If you're on a different platform, you can still use `uvx 1.x`, which is written in pure
   Python.
