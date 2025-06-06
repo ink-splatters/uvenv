@@ -2,6 +2,21 @@
 
 <!--next-version-placeholder-->
 
+## 3.9.8 (2025-06-06)
+
+Addresses issues from [#17](https://github.com/robinvandernoord/uvenv/issues/17).
+
+### Fixes
+
+* change directory when running `uv` commands to prevent reading local `pyproject.toml` config, instead of setting
+  UV_NO_CONFIG.
+
+### Documentation
+
+* added `uv tool install uvenv` as a proper installation method for users who already have `uv`. Fixed structure for
+  other methods (description, advantages, considerations, installation steps)
+* added a section on the difference with `uv tool`
+
 ## 3.9.7 (2025-06-04)
 
 ### Updates
@@ -51,7 +66,7 @@
 
 ### Snapcraft
 
-* use $SNAP (`~/snap/uvenv/<revision>`) as workdir 
+* use $SNAP (`~/snap/uvenv/<revision>`) as workdir
   (no need using `.local/uvenv` if the files are already scoped to uvenv)
 
 ### Updates
@@ -63,12 +78,11 @@
 ### Features
 
 * `uvenv upgrade` now supports a dynamic amount of packages:
-  - `uvenv upgrade <package>` like before
-  - `uvenv upgrade` will upgrade all outdated packages
-  - `uvenv upgrade <package1> <package2> ...` to upgrade multiple
-    
-  + use `uvenv upgrade-all` to upgrade all packages without checking for oudated
+    - `uvenv upgrade <package>` like before
+    - `uvenv upgrade` will upgrade all outdated packages
+    - `uvenv upgrade <package1> <package2> ...` to upgrade multiple
 
+    + use `uvenv upgrade-all` to upgrade all packages without checking for oudated
 
 ### Updates
 
