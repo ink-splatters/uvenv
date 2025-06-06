@@ -3,9 +3,23 @@
 Explore multiple alternative ways to install `uvenv` on systems where global pip installs are restricted (e.g., Ubuntu 24.04+).
 Each method offers a different approach, with its own benefits and setup steps.
 
+---
+
 ## 1. via `install.sh`
 
 The easiest way to install `uvenv` is to use the [`install.sh`](https://github.com/robinvandernoord/uvenv/blob/uvenv/install.sh) script.
+
+**Advantages:**
+
+* One-liner installation.
+* Automatically fetches and installs the latest version.
+* Compatible with various shells (`bash`, `sh`, `zsh`, etc.).
+
+**Considerations:**
+
+* Executes a remote script directly; review it if you have security concerns.
+
+**Installation Steps:**
 
 ```bash
 # download/read the script:
@@ -13,21 +27,45 @@ curl -fsSL https://raw.githubusercontent.com/robinvandernoord/uvenv/uvenv/instal
 
 # run it:
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/robinvandernoord/uvenv/uvenv/install.sh)"
-# instead of `bash`, you can also use `sh`, `zsh` or "$SHELL"
+# instead of `bash`, you can also use `sh`, `zsh`, or "$SHELL"
 ```
 
+---
 
-## 2. System Package Method
+## 2. via uv
 
-Install `uvenv` directly using `pip` with the `--break-system-packages` option.
+If you already have [`uv`](https://github.com/astral-sh/uv) installed, you can use it to install `uvenv` as a managed tool.
 
 **Advantages:**
 
-- Quick and straightforward setup without additional tools.
+* Isolated tool management via `uv`.
+* Simplifies updates and uninstalls.
+* No impact on system Python packages.
 
 **Considerations:**
 
-- Minor risk of package conflicts, though unlikely with `uvenv`.
+* Requires `uv` to be installed beforehand.
+
+**Installation Steps:**
+
+```bash
+uv tool install uvenv
+```
+
+---
+
+## 3. System Package Method
+
+Install `uvenv` using `pip` with the `--break-system-packages` flag.
+
+**Advantages:**
+
+* Quick, no extra tooling required.
+* Easy to use on minimal systems.
+
+**Considerations:**
+
+* Minor risk of package conflicts, though unlikely with `uvenv`.
 
 **Installation Steps:**
 
@@ -35,18 +73,20 @@ Install `uvenv` directly using `pip` with the `--break-system-packages` option.
 pip install --break-system-packages uvenv
 ```
 
-## 3. Pipx Installation Method
+---
+
+## 4. Pipx Installation Method
 
 Use `pipx` to manage `uvenv` in an isolated environment.
 
 **Advantages:**
 
-- Keeps `uvenv` isolated from system packages.
-- Simplifies updates and removals.
+* Keeps `uvenv` isolated from system packages.
+* Easily updatable and removable.
 
-**Prerequisites:**
+**Considerations:**
 
-- `pipx` must be installed (`apt install pipx`).
+* Requires `pipx` to be installed (`sudo apt install pipx` or equivalent).
 
 **Installation Steps:**
 
@@ -54,14 +94,21 @@ Use `pipx` to manage `uvenv` in an isolated environment.
 pipx install uvenv
 ```
 
-## 4. Virtual Environment Method
+---
 
-Create a dedicated virtual environment for `uvenv`.
+## 5. Virtual Environment Method
+
+Create a dedicated Python virtual environment and install `uvenv` inside it.
 
 **Advantages:**
 
-- Complete isolation from system Python packages.
-- Suitable for users comfortable with virtual environments.
+* Complete isolation from system Python.
+* Suitable for users comfortable with virtual environments.
+
+**Considerations:**
+
+* Requires familiarity with `venv` and virtual environments.
+* Needs activation each time or linking via `uvenv self link`.
 
 **Installation Steps:**
 
@@ -69,21 +116,24 @@ Create a dedicated virtual environment for `uvenv`.
 python -m venv ~/.virtualenvs/uvenv
 source ~/.virtualenvs/uvenv/bin/activate
 pip install uvenv
-uvenv self link  # or `uvenv setup` for all additional features
+uvenv self link  # or `uvenv setup` for full integration
 ```
 
-## 5. Self-Managed uvenv Method
+---
 
-Use `uvenv` to manage its own installation and updates.
+## 6. Self-Managed uvenv Method
+
+Use `uvenv` to manage and update its own installation.
 
 **Advantages:**
 
-- Streamlines `uvenv` management through its own features.
-- Simplifies long-term maintenance.
+* Allows `uvenv` to bootstrap and maintain itself.
+* Streamlines long-term tool management.
 
 **Considerations:**
 
-- Caution needed with commands like `uvenv uninstall-all`.
+* Requires initial manual setup.
+* Commands like `uvenv uninstall-all` may remove itself—use with care.
 
 **Installation Steps:**
 
@@ -92,9 +142,21 @@ python -m venv /tmp/initial-uvenv
 source /tmp/initial-uvenv/bin/activate
 pip install uvenv
 uvenv install uvenv
-uvenv ensurepath  # or uvenv setup
+uvenv ensurepath  # or `uvenv setup` for all features
 ```
 
-## 6. via Snap
+---
 
-See [snap installation](./snap.md) for installation instructions and caveats.
+## 7. via Snap
+
+Snap installation is also supported.
+
+**Advantages:**
+
+* Easy to install and manage on Snap-enabled systems.
+* Clean separation from system packages.
+
+**Considerations:**
+
+* Snap-specific behavior and confinement apply.
+* See [snap installation](./snap.md) for full instructions and caveats.
