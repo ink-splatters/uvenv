@@ -6,6 +6,7 @@ use std::collections::BTreeMap;
 use std::env;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 use uv_pep440::Version;
 
 use crate::cli::{Process, SelfInfoOptions};
@@ -51,7 +52,19 @@ pub fn compare_versions(
         return false;
     }
 
-    current.ge(latest)
+    // should compare uv_pep440::version::Version instead of str:
+    
+    let Ok(current_version) = Version::from_str(current) else {
+        // if this fails, it's probably not up to date -> 
+        return false
+    };
+    
+    let Ok(latest_version) = Version::from_str(latest) else {
+        // if this fails, we can't know if it's up to date -> 
+        return true
+    };
+
+    current_version.ge(&latest_version)
 }
 
 pub fn is_latest(
