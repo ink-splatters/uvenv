@@ -75,6 +75,7 @@ async fn store_metadata<S: Display>(
     inject: &[S],
     editable: bool,
     install_spec: &str,
+    python_spec: Option<&str>,
     venv: &PythonEnvironment,
 ) -> anyhow::Result<Metadata> {
     let mut metadata = Metadata::new(requirement_name);
@@ -84,6 +85,7 @@ async fn store_metadata<S: Display>(
 
     metadata.editable = editable;
     metadata.install_spec = String::from(install_spec);
+    metadata.python_spec = python_spec.map(String::from);
 
     metadata.requested_version = {
         let requested_version = requirement.version();
@@ -169,12 +171,14 @@ pub async fn install_package<S: AsRef<str> + Display>(
     }
 
     let requirement_name = requirement.name.to_string();
+
     let mut metadata = store_metadata(
         &requirement_name,
         &requirement,
         inject,
         editable,
         &resolved_install_spec,
+        python,
         &uv_venv,
     )
     .await?;

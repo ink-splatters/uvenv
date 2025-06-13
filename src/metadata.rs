@@ -177,6 +177,8 @@ pub struct Metadata {
     pub available_version: String,
     #[serde(default)]
     pub outdated: bool,
+    #[serde(default)]
+    pub python_spec: Option<String>,
 }
 
 impl PartialOrd for Metadata {
@@ -203,6 +205,7 @@ impl Metadata {
             name: name.to_owned(),
             scripts: BTreeMap::new(),
             install_spec: name.to_owned(),
+            python_spec: None,
             extras: HashSet::new(),
             requested_version: String::new(),
             installed_version: String::new(),

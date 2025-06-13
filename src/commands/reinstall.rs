@@ -52,6 +52,9 @@ pub async fn reinstall(
         &current_metadata.install_spec
     };
 
+    // use --python if specified, otherwise use the current python spec (which can be none)
+    let python_spec = python.or(current_metadata.python_spec.as_deref());
+
     let inject = if with_injected {
         current_metadata.vec_injected()
     } else {
@@ -61,7 +64,7 @@ pub async fn reinstall(
     if new_install_spec.is_empty() {
         create(
             &current_metadata.name,
-            python,
+            python_spec,
             true, // force seed for now
             force,
         )
@@ -70,7 +73,7 @@ pub async fn reinstall(
         install_package(
             new_install_spec,
             None,
-            python,
+            python_spec,
             force,
             &inject,
             no_cache,

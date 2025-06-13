@@ -1,12 +1,12 @@
 use anyhow::bail;
 use core::fmt::Write as _;
+use core::str::FromStr;
 use futures::future;
 use owo_colors::OwoColorize;
 use std::collections::BTreeMap;
 use std::env;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
-use std::str::FromStr;
 use uv_pep440::Version;
 
 use crate::cli::{Process, SelfInfoOptions};
@@ -53,15 +53,15 @@ pub fn compare_versions(
     }
 
     // should compare uv_pep440::version::Version instead of str:
-    
+
     let Ok(current_version) = Version::from_str(current) else {
-        // if this fails, it's probably not up to date -> 
-        return false
+        // if this fails, it's probably not up to date ->
+        return false;
     };
-    
+
     let Ok(latest_version) = Version::from_str(latest) else {
-        // if this fails, we can't know if it's up to date -> 
-        return true
+        // if this fails, we can't know if it's up to date ->
+        return true;
     };
 
     current_version.ge(&latest_version)
