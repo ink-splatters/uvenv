@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## 3.9.11 (2025-06-13)
+
+### Fixes
+
+* properly store requested `--python` install so reinstall won't switch python versions
+* proper semantic version comparision so 3.10 > 3.9
+
 ## 3.9.10 (2025-06-13)
 
 ### Fixes
