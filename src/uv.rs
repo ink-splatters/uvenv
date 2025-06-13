@@ -4,10 +4,10 @@ use core::fmt::Write;
 use directories::ProjectDirs;
 use itertools::Itertools;
 use owo_colors::OwoColorize;
+use pushd::Pushd;
 use std::ffi::OsStr;
 use std::path::Path;
 use std::{collections::HashSet, path::PathBuf};
-use pushd::Pushd;
 use uv_cache::Cache;
 use uv_client::{BaseClientBuilder, Connectivity};
 use uv_distribution_types::{InstalledDist, Name};
@@ -20,7 +20,7 @@ use uv_python::{
 
 use uv_pep508::VersionOrUrl::VersionSpecifier;
 
-use crate::helpers::{PathToString, set_env_var};
+use crate::helpers::PathToString;
 use crate::metadata::get_work_dir;
 
 pub async fn maybe_get_uv_binary() -> Option<String> {
@@ -48,12 +48,12 @@ pub async fn uv<S: AsRef<OsStr>>(args: &[S]) -> anyhow::Result<bool> {
         .to_str()
         .unwrap_or_default(); // cursed but makes it work with both &str and String
     let err_prefix = format!("uv {subcommand}");
-    
+
     // temporarily (until end of scope) change cwd
     // to `~/.config/uvenv` to prevent reading local pyproject.toml.
-    // this replaces `set_env_var("UV_NO_CONFIG", "1")`, 
+    // this replaces `set_env_var("UV_NO_CONFIG", "1")`,
     // which would also ignore ~/.config/uv/uv.toml
-    let _pd = Pushd::new(get_work_dir()); 
+    let _pd = Pushd::new(get_work_dir());
 
     run(&script, args, Some(err_prefix)).await
     // _pd is dropped, original cwd is restored
