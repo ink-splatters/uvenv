@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## 3.9.9 (2025-06-13)
+
+### Updates
+
+* update uv dependencies to 0.7.13
+
 ## 3.9.8 (2025-06-06)
 
 Addresses issues from [#17](https://github.com/robinvandernoord/uvenv/issues/17).
