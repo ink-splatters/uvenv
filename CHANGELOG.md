@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## 3.9.10 (2025-06-13)
+
+### Fixes
+
+* on snap, store everything in the 'common' (`$SNAP_USER_COMMON`)
+  instead of `$SNAP_USER_DATA`  
+  (snap revision-specific 'home')
+
 ## 3.9.9 (2025-06-13)
 
 ### Updates
